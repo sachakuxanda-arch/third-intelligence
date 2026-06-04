@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Conscious Loop — CMF V1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #070707;
+    --off-white: #F0EDE6;
+    --signal: #C8FF00;
+    --signal-dim: rgba(200,255,0,0.1);
+    --signal-faint: rgba(200,255,0,0.035);
+    --red: #FF3B30;
+    --orange: #FF8C42;
+    --blue: #42A5FF;
+    --mid: #666560;
+    --light: #C8C4BC;
+    --border: rgba(240,237,230,0.1);
+    --border-strong: rgba(240,237,230,0.22);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--black); color:var(--off-white); font-family:'EB Garamond',Georgia,serif; overflow-x:hidden; cursor:none; }
+
+  #cursor { position:fixed; width:7px; height:7px; background:var(--signal); border-radius:50%; pointer-events:none; z-index:9999; mix-blend-mode:difference; transition:transform .12s ease; transform:translate(-50%,-50%); }
+  #cursor.big { transform:translate(-50%,-50%) scale(4); }
+
+  .scanline { position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.28) 2px,rgba(0,0,0,.28) 4px); pointer-events:none; animation:flicker 9s infinite; }
+  @keyframes flicker { 0%,93%,100%{opacity:.25} 94%{opacity:.6} 95.5%{opacity:.15} 97%{opacity:.45} }
+
+  /* ═══ BOOT ═══ */
+  #boot { position:fixed; inset:0; background:var(--black); z-index:1000; display:flex; align-items:center; justify-content:center; font-family:'Courier Prime',monospace; }
+  #boot-inner { max-width:580px; width:90%; position:relative; z-index:2; }
+
+  /* Bias block */
+  #b-bias { opacity:0; transform:translateY(12px); transition:opacity .9s ease,transform .9s ease; border-left:2px solid var(--signal); padding-left:1.5rem; margin-bottom:3rem; }
+  #b-bias.show { opacity:1; transform:translateY(0); }
+  .b-meta { font-size:.6rem; letter-spacing:.38em; color:var(--mid); margin-bottom:.35rem; }
+  .b-word { font-size:2.4rem; font-weight:700; letter-spacing:.04em; color:var(--off-white); line-height:1; margin-bottom:.2rem; }
+  .b-pos  { font-size:.72rem; font-style:italic; color:var(--mid); margin-bottom:.9rem; letter-spacing:.05em; }
+  .b-line { font-size:.9rem; line-height:1.75; color:var(--light); opacity:0; transform:translateX(-6px); transition:opacity .5s ease,transform .5s ease; }
+  .b-line.show { opacity:1; transform:translateX(0); }
+  .b-line.sig { color:var(--signal); }
+  .b-line.dim { color:var(--mid); }
+
+  /* Rapid words */
+  #b-rapid { min-height:64px; display:flex; flex-wrap:wrap; gap:.4rem .65rem; opacity:0; transition:opacity .4s ease; margin-bottom:2.5rem; }
+  #b-rapid.show { opacity:1; }
+  .rw { font-size:.68rem; letter-spacing:.22em; color:var(--mid); opacity:0; transition:opacity .08s,color .15s,text-shadow .15s; user-select:none; cursor:none; }
+  .rw.lit { opacity:1; color:var(--off-white); }
+  .rw.dim-out { opacity:.13; color:var(--mid); }
+  .rw.dim-out.revealed { opacity:1; color:var(--signal); text-shadow:0 0 16px rgba(200,255,0,.5); }
+
+  /* O/I GAP label */
+  #b-noticed { opacity:0; transition:opacity 1.4s ease; margin-bottom:2rem; font-family:'Space Mono',monospace; font-size:.65rem; letter-spacing:.32em; color:var(--signal); }
+  #b-noticed.show { opacity:1; }
+
+  /* O/I scenario card */
+  #b-scenario { opacity:0; transform:translateY(8px); transition:opacity .8s ease,transform .8s ease; margin-bottom:2rem; border-left:2px solid var(--signal); padding-left:1.5rem; }
+  #b-scenario.show { opacity:1; transform:translateY(0); }
+
+  .sc-system-label { font-size:.58rem; letter-spacing:.42em; color:var(--mid); margin-bottom:1.4rem; font-family:'Courier Prime',monospace; }
+
+  .sc-field { margin-bottom:1.1rem; opacity:0; transform:translateX(-6px); transition:opacity .6s ease,transform .6s ease; }
+  .sc-field.show { opacity:1; transform:translateX(0); }
+  .sc-field-label { font-size:.58rem; letter-spacing:.35em; color:var(--signal); margin-bottom:.4rem; font-family:'Courier Prime',monospace; }
+  .sc-field-content { font-family:'EB Garamond',serif; font-size:1rem; color:var(--light); line-height:1.6; }
+  .sc-field-content.interp { color:var(--off-white); }
+
+  .sc-not-same { opacity:0; transition:opacity 1s ease; margin-top:1.4rem; margin-bottom:.8rem; font-family:'EB Garamond',serif; font-size:1.1rem; font-style:italic; color:var(--signal); }
+  .sc-not-same.show { opacity:1; }
+
+  .sc-gap-note { opacity:0; transition:opacity .8s ease; font-family:'Courier Prime',monospace; font-size:.65rem; letter-spacing:.15em; color:var(--mid); line-height:1.65; }
+  .sc-gap-note.show { opacity:1; }
+
+  /* Final lines + button */
+  #b-final { opacity:0; transition:opacity .6s ease; margin-top:2rem; }
+  #b-final.show { opacity:1; }
+  .f-line { font-size:.92rem; color:var(--off-white); margin-bottom:.5rem; opacity:0; transition:opacity .7s ease; }
+  .f-line.show { opacity:1; }
+  .f-line.dim { color:var(--mid); font-size:.8rem; }
+
+  #enter-btn { margin-top:2.8rem; opacity:0; transition:opacity .8s ease,background .2s,color .2s; display:block; background:transparent; border:1px solid var(--signal); color:var(--signal); font-family:'Courier Prime',monospace; font-size:.7rem; letter-spacing:.38em; padding:.8rem 2.8rem; cursor:none; width:fit-content; }
+  #enter-btn.show { opacity:1; }
+  #enter-btn:hover { background:var(--signal); color:var(--black); }
+
+  /* ═══ MAIN ═══ */
+  #main { opacity:0; transition:opacity 1s ease; }
+  #main.on { opacity:1; }
+
+  .d-header { padding:7rem 0 4.5rem; text-align:center; border-bottom:1px solid var(--border); position:relative; }
+  .d-header::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:1px; height:5rem; background:linear-gradient(to bottom,transparent,var(--signal)); }
+  .d-ver { font-family:'Space Mono',monospace; font-size:.62rem; letter-spacing:.42em; color:var(--signal); margin-bottom:1.4rem; }
+  .d-title { font-family:'EB Garamond',serif; font-size:clamp(2.8rem,7vw,5rem); font-weight:400; letter-spacing:.015em; line-height:1.05; animation:subtle-glitch 14s infinite; }
+  @keyframes subtle-glitch { 0%,93%,100%{clip-path:none;transform:none} 94%{clip-path:inset(18% 0 62% 0);transform:translateX(-2px)} 95.5%{clip-path:inset(55% 0 15% 0);transform:translateX(2px)} 97%{clip-path:none;transform:none} }
+  .d-sub { font-family:'Courier Prime',monospace; font-size:.68rem; letter-spacing:.28em; color:var(--mid); margin:.5rem 0 1.8rem; }
+  .d-desc { font-family:'EB Garamond',serif; font-size:1.15rem; font-style:italic; color:var(--mid); max-width:500px; margin:0 auto; line-height:1.65; }
+
+  .d-nav { position:sticky; top:0; z-index:100; background:rgba(7,7,7,.96); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+  .nav-inner { max-width:960px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:0 2rem; height:3.4rem; }
+  .nav-logo { font-family:'Space Mono',monospace; font-size:.6rem; letter-spacing:.32em; color:var(--signal); }
+  .nav-links { display:flex; gap:.1rem; }
+  .nav-link { font-family:'Courier Prime',monospace; font-size:.58rem; letter-spacing:.12em; color:var(--mid); text-decoration:none; padding:.4rem .6rem; border:1px solid transparent; transition:color .2s,border-color .2s; }
+  .nav-link:hover,.nav-link.on { color:var(--off-white); border-color:var(--border-strong); }
+
+  .d-body { max-width:780px; margin:0 auto; padding:0 2rem; }
+
+  .sec { padding:5.5rem 0; border-bottom:1px solid var(--border); opacity:0; transform:translateY(22px); transition:opacity .7s ease,transform .7s ease; }
+  .sec.on { opacity:1; transform:translateY(0); }
+  .sec-label { font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.44em; color:var(--signal); margin-bottom:1.4rem; display:flex; align-items:center; gap:1rem; }
+  .sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .sec-title { font-family:'EB Garamond',serif; font-size:clamp(1.9rem,4.5vw,3rem); font-weight:400; line-height:1.15; margin-bottom:2rem; color:var(--off-white); }
+  .body-text { font-size:1.08rem; line-height:1.9; color:var(--light); }
+  .body-text p { margin-bottom:1.5rem; }
+  .body-text p:last-child { margin-bottom:0; }
+
+  .pull { border-left:2px solid var(--signal); padding:1rem 0 1rem 1.75rem; margin:2.5rem 0; font-family:'EB Garamond',serif; font-size:1.28rem; font-style:italic; color:var(--off-white); line-height:1.55; }
+
+  /* Philosophy skill list */
+  .skill-list { margin:1.5rem 0; display:flex; flex-direction:column; gap:0; border-left:1px solid var(--border); padding-left:1.5rem; }
+  .skill-item { font-family:'Courier Prime',monospace; font-size:.82rem; letter-spacing:.08em; color:var(--light); padding:.45rem 0; border-bottom:1px solid var(--border); }
+  .skill-item:last-child { border-bottom:none; }
+
+  /* Shift steps */
+  .shift-steps { display:flex; flex-direction:column; gap:1px; background:var(--border); margin:2.5rem 0; }
+  .shift-step { background:var(--black); padding:1.5rem 2rem; display:grid; grid-template-columns:80px 1fr; gap:1.5rem; align-items:center; }
+  .shift-num { font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.28em; color:var(--mid); }
+  .shift-text { font-family:'EB Garamond',serif; font-size:1.05rem; color:var(--light); line-height:1.5; }
+  .shift-text strong { color:var(--off-white); font-weight:500; font-style:italic; }
+  .shift-arrow { text-align:center; padding:.6rem 0; font-family:'Space Mono',monospace; font-size:.7rem; color:var(--signal); background:var(--black); }
+
+  /* Dual system */
+  .dual { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); margin:2.5rem 0; }
+  .sys-card { background:var(--black); padding:2rem; }
+  .sys-tag { font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.32em; margin-bottom:.9rem; }
+  .sys-tag.i { color:var(--orange); }
+  .sys-tag.d { color:var(--blue); }
+  .sys-name { font-family:'EB Garamond',serif; font-size:1.55rem; color:var(--off-white); margin-bottom:.2rem; }
+  .sys-desc { font-family:'Courier Prime',monospace; font-size:.68rem; color:var(--mid); letter-spacing:.1em; margin-bottom:1.4rem; }
+  .sys-list { list-style:none; margin-bottom:1.2rem; }
+  .sys-list li { font-family:'Courier Prime',monospace; font-size:.78rem; color:var(--light); padding:.3rem 0; border-bottom:1px solid var(--border); }
+  .sys-risk { font-family:'Courier Prime',monospace; font-size:.68rem; color:var(--mid); font-style:italic; }
+
+  /* O/I Split — core visual signature */
+  .oi-subsection-label { font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.44em; color:var(--signal); margin:3rem 0 1.5rem; }
+  .oi-split { display:grid; grid-template-columns:1fr 1fr; gap:0; margin:0 0 1.5rem; position:relative; border:1px solid var(--border); }
+  .oi-split::after { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:2px; height:100%; background:var(--signal); }
+  .oi-col { padding:2rem; }
+  .oi-label { font-family:'Courier Prime',monospace; font-size:.6rem; letter-spacing:.35em; display:block; margin-bottom:.9rem; }
+  .oi-label.o { color:var(--signal); }
+  .oi-label.i { color:var(--signal); }
+  .oi-content { font-family:'EB Garamond',serif; font-size:1.05rem; line-height:1.75; color:var(--light); }
+  .oi-caption { font-family:'EB Garamond',serif; font-size:1.1rem; font-style:italic; color:var(--off-white); text-align:center; margin-bottom:1.5rem; line-height:1.6; }
+
+  /* O/I marker used in curriculum */
+  .oi-marker { display:inline-flex; gap:.3rem; align-items:center; margin-bottom:.6rem; }
+  .oi-marker span { font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.25em; padding:.15rem .4rem; border:1px solid; }
+  .oi-marker .om { color:var(--mid); border-color:var(--mid); }
+  .oi-marker .im { color:var(--signal); border-color:var(--signal); }
+  .oi-marker .oi-div { width:1px; height:12px; background:var(--signal); display:inline-block; border:none; padding:0; }
+
+  /* Curriculum layers */
+  .layers { margin:2rem 0; }
+  .layer { border-left:2px solid var(--border); padding:0 0 2.5rem 2rem; position:relative; transition:border-color .3s; cursor:none; }
+  .layer:last-child { padding-bottom:0; }
+  .layer::before { content:''; position:absolute; left:-5px; top:0; width:8px; height:8px; background:var(--black); border:1px solid var(--border); border-radius:50%; transition:background .3s,border-color .3s; }
+  .layer:hover { border-color:var(--signal); }
+  .layer:hover::before { background:var(--signal); border-color:var(--signal); }
+  .layer-header { display:flex; align-items:baseline; gap:1rem; margin-bottom:.5rem; }
+  .layer-num { font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.3em; color:var(--signal); flex-shrink:0; }
+  .layer-name { font-family:'EB Garamond',serif; font-size:1.4rem; color:var(--off-white); }
+  .layer-type { font-family:'Courier Prime',monospace; font-size:.65rem; color:var(--mid); letter-spacing:.12em; margin-bottom:.7rem; }
+  .layer-topics { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .topic-pill { font-family:'Courier Prime',monospace; font-size:.65rem; letter-spacing:.1em; color:var(--mid); border:1px solid var(--border); padding:.2rem .6rem; transition:color .2s,border-color .2s; }
+  .layer:hover .topic-pill { color:var(--light); border-color:var(--border-strong); }
+  .curriculum-note { font-family:'Courier Prime',monospace; font-size:.68rem; letter-spacing:.12em; color:var(--mid); text-align:center; line-height:1.8; margin-top:2.5rem; }
+
+  /* Attributes */
+  .attrs { display:flex; flex-direction:column; gap:1px; background:var(--border); margin:2rem 0; }
+  .attr { background:var(--black); padding:1.75rem 2rem; display:grid; grid-template-columns:190px 1fr; gap:2rem; align-items:start; transition:background .2s; cursor:none; }
+  .attr:hover { background:var(--signal-faint); }
+  .attr-name { font-family:'Space Mono',monospace; font-size:.65rem; letter-spacing:.18em; color:var(--signal); margin-bottom:.6rem; }
+  .attr-bar { width:100%; height:2px; background:var(--border-strong); position:relative; }
+  .attr-fill { position:absolute; top:0; left:0; height:100%; background:var(--signal); width:0; transition:width 1.3s ease; }
+  .attr-desc { font-family:'EB Garamond',serif; font-size:1rem; color:var(--off-white); margin-bottom:.45rem; }
+  .attr-trained { font-family:'Courier Prime',monospace; font-size:.7rem; color:var(--mid); line-height:1.6; }
+
+  /* Halo / cultural inversion */
+  .halo-box { background:var(--signal-dim); border:1px solid rgba(200,255,0,.2); padding:2rem 2.25rem; margin:2.5rem 0; }
+  .halo-title { font-family:'Space Mono',monospace; font-size:.6rem; letter-spacing:.35em; color:var(--signal); margin-bottom:1.2rem; }
+  .halo-compare { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
+  .halo-col-label { font-family:'Courier Prime',monospace; font-size:.65rem; letter-spacing:.18em; margin-bottom:.8rem; }
+  .halo-col-label.them { color:var(--red); }
+  .halo-col-label.us { color:var(--signal); }
+  .halo-item { font-family:'Courier Prime',monospace; font-size:.78rem; color:var(--light); padding:.35rem 0; border-bottom:1px solid var(--border); }
+  .halo-item:last-child { border-bottom:none; }
+
+  /* Collaborator brief */
+  .collab-brief { margin:2.5rem 0; border:1px solid var(--border); padding:2rem 2.25rem; }
+  .cb-title { font-family:'Space Mono',monospace; font-size:.6rem; letter-spacing:.35em; color:var(--mid); margin-bottom:1.5rem; }
+  .cb-roles { display:grid; grid-template-columns:1fr 1fr; gap:.3rem 2rem; }
+  .cb-role { font-family:'Courier Prime',monospace; font-size:.78rem; color:var(--light); padding:.4rem 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.6rem; }
+  .cb-role::before { content:'→'; color:var(--signal); flex-shrink:0; font-size:.7rem; }
+
+  /* Wider architecture */
+  .arch-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); margin:2.5rem 0; }
+  .arch-card { background:var(--black); padding:2rem; position:relative; overflow:hidden; transition:background .25s; cursor:none; }
+  .arch-card:hover { background:var(--signal-faint); }
+  .arch-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:1px; background:var(--signal); transform:scaleX(0); transform-origin:left; transition:transform .4s ease; }
+  .arch-card:hover::before { transform:scaleX(1); }
+  .arch-card-label { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.32em; color:var(--signal); margin-bottom:.8rem; }
+  .arch-card-name { font-family:'EB Garamond',serif; font-size:1.2rem; color:var(--off-white); margin-bottom:.6rem; }
+  .arch-card-desc { font-family:'Courier Prime',monospace; font-size:.73rem; color:var(--mid); line-height:1.65; }
+  .arch-status { display:inline-block; margin-top:1rem; font-family:'Courier Prime',monospace; font-size:.6rem; letter-spacing:.22em; padding:.2rem .55rem; border:1px solid; }
+  .arch-status.exists { color:var(--signal); border-color:rgba(200,255,0,.35); }
+  .arch-status.forming { color:var(--mid); border-color:var(--border-strong); }
+
+  /* Ethics */
+  .ethics-split { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); margin:2.5rem 0; }
+  .eth-col { background:var(--black); padding:2rem; }
+  .eth-col-label { font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.4em; margin-bottom:1.2rem; }
+  .eth-col-label.no { color:var(--red); }
+  .eth-col-label.yes { color:var(--signal); }
+  .eth-item { font-family:'Courier Prime',monospace; font-size:.78rem; color:var(--light); padding:.45rem 0; border-bottom:1px solid var(--border); line-height:1.5; }
+  .eth-item:last-child { border-bottom:none; }
+
+  /* Product sequence */
+  .product-sequence { display:flex; align-items:center; justify-content:center; gap:.8rem; margin:2.5rem 0 1rem; flex-wrap:wrap; }
+  .ps-name { font-family:'Courier Prime',monospace; font-size:.72rem; letter-spacing:.22em; color:var(--signal); }
+  .ps-name.current { color:var(--off-white); }
+  .ps-arrow { font-family:'Space Mono',monospace; font-size:.65rem; color:var(--signal); }
+  .ps-caption { font-family:'EB Garamond',serif; font-size:.95rem; font-style:italic; color:var(--mid); text-align:center; }
+
+  /* Closing */
+  .d-closing { padding:7rem 0 5.5rem; text-align:center; }
+  .closing-trojan { font-family:'EB Garamond',serif; font-size:1.1rem; font-style:italic; color:var(--mid); max-width:480px; margin:0 auto 3rem; line-height:1.7; }
+  .closing-trojan em { color:var(--off-white); font-style:normal; }
+  .signal-dot { display:inline-block; width:8px; height:8px; background:var(--signal); border-radius:50%; margin:0 auto 2.5rem; animation:dot-pulse 2.2s ease-in-out infinite; }
+  @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 rgba(200,255,0,.4)} 50%{opacity:.6;transform:scale(1.4);box-shadow:0 0 0 9px rgba(200,255,0,0)} }
+  .closing-first-move { font-family:'EB Garamond',serif; font-size:1.35rem; font-style:italic; color:var(--off-white); margin-bottom:2.5rem; }
+  .closing-name { font-family:'EB Garamond',serif; font-size:clamp(1.6rem,3.5vw,2.2rem); font-weight:400; color:var(--off-white); margin-bottom:.4rem; }
+  .closing-sub { font-family:'Courier Prime',monospace; font-size:.65rem; letter-spacing:.3em; color:var(--mid); }
+
+  footer { border-top:1px solid var(--border); padding:1.8rem 2rem; max-width:960px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+  footer span { font-family:'Courier Prime',monospace; font-size:.62rem; letter-spacing:.18em; color:var(--mid); }
+
+  @media(max-width:640px) {
+    .dual,.halo-compare,.ethics-split,.cb-roles,.arch-grid { grid-template-columns:1fr; }
+    .attr { grid-template-columns:1fr; gap:.75rem; }
+    .shift-step { grid-template-columns:1fr; gap:.4rem; }
+    .oi-split { grid-template-columns:1fr; }
+    .oi-split::after { display:none; }
+    .nav-links { display:none; }
+    .product-sequence { gap:.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- ═══════════════ BOOT ═══════════════ -->
+<div id="boot">
+  <div class="scanline"></div>
+  <div id="boot-inner">
+
+    <div id="b-bias">
+      <div class="b-meta">SYSTEM BOOT — INPUT LAYER 01 — COGNITIVE ARCHITECTURE</div>
+      <div class="b-word">BIAS</div>
+      <div class="b-pos">noun / cognitive architecture</div>
+      <div class="b-line" id="bl1">A systematic weighting of perception,</div>
+      <div class="b-line" id="bl2">judgment, or interpretation.</div>
+      <div class="b-line dim" id="bl3">Not always irrational.</div>
+      <div class="b-line dim" id="bl4">Often invisible.</div>
+      <div class="b-line sig" id="bl5">Always influential.</div>
+    </div>
+
+    <div id="b-rapid"></div>
+
+    <div id="b-noticed">THE O/I GAP — OBSERVATION / INTERPRETATION</div>
+
+    <div id="b-scenario">
+      <div class="sc-system-label">SYSTEM OBSERVATION</div>
+      <div class="sc-field" id="sc-obs">
+        <div class="sc-field-label">OBSERVED</div>
+        <div class="sc-field-content">They did not reply for two days.</div>
+      </div>
+      <div class="sc-field" id="sc-int">
+        <div class="sc-field-label">INTERPRETED</div>
+        <div class="sc-field-content interp">They are not interested.</div>
+      </div>
+      <div class="sc-not-same" id="sc-not">These are not the same thing.</div>
+      <div class="sc-gap-note" id="sc-gap">The gap between them is where most decisions go wrong.</div>
+    </div>
+
+    <div id="b-final">
+      <div class="f-line" id="fl1">Most people think they see reality.</div>
+      <div class="f-line dim" id="fl2">They see filtered perception.</div>
+      <div class="f-line dim" id="fl3">Including you.</div>
+      <button id="enter-btn" onclick="enterMain()">ENTER THE LOOP</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div id="main">
+
+  <header class="d-header">
+    <div class="d-ver">COGNITIVE MECHANICS FRAMEWORK — V1.0</div>
+    <h1 class="d-title">The Conscious Loop</h1>
+    <div class="d-sub">A COGNITIVE FITNESS ENVIRONMENT FOR THE AGE OF HUMAN–AI COLLABORATION</div>
+    <p class="d-desc">Exploring how interactive systems may cultivate metacognition, systems reasoning, and collaborative intelligence.</p>
+  </header>
+
+  <nav class="d-nav">
+    <div class="nav-inner">
+      <span class="nav-logo">TCL / CMF V1.0</span>
+      <div class="nav-links">
+        <a href="#shift"         class="nav-link">The Shift</a>
+        <a href="#philosophy"    class="nav-link">Philosophy</a>
+        <a href="#model"         class="nav-link">Model</a>
+        <a href="#curriculum"    class="nav-link">Curriculum</a>
+        <a href="#fitness"       class="nav-link">Brain Gym</a>
+        <a href="#collaboration" class="nav-link">AI Layer</a>
+        <a href="#architecture"  class="nav-link">Architecture</a>
+        <a href="#ethics"        class="nav-link">Ethics</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="d-body">
+
+    <!-- 00 THE SHIFT -->
+    <section class="sec" id="shift">
+      <div class="sec-label">00 — THE SHIFT</div>
+      <h2 class="sec-title">From Game Concept to Cognitive Infrastructure</h2>
+
+      <div class="pull">Most people decide what is true before they examine how they're seeing.<br>This system flips the order: make seeing visible first — then let truth emerge.</div>
+
+      <div class="body-text">
+        <p>This project moved through several framings before it reached the right one. That evolution isn't a detour; it's the first demonstration of what the environment is for: recursive thinking that changes the thinker.</p>
+      </div>
+
+      <div class="shift-steps">
+        <div class="shift-step">
+          <div class="shift-num">STAGE 01</div>
+          <div class="shift-text"><strong>A philosophical game concept</strong> — exploring perception, systems, and cognition through narrative and mechanics.</div>
+        </div>
+        <div class="shift-arrow">↓</div>
+        <div class="shift-step">
+          <div class="shift-num">STAGE 02</div>
+          <div class="shift-text"><strong>A simulation environment</strong> — training minds for collaborative intelligence, with AI agents as reasoning partners.</div>
+        </div>
+        <div class="shift-arrow">↓</div>
+        <div class="shift-step">
+          <div class="shift-num">STAGE 03</div>
+          <div class="shift-text"><strong>Cognitive infrastructure for the AI era</strong> — training human cognitive architecture for coexistence with advanced intelligence systems.</div>
+        </div>
+      </div>
+
+      <div class="body-text">
+        <p>That third framing is a category shift. It sits at the intersection of cognitive science, AI alignment, human–computer interaction, and educational simulation.</p>
+        <p>Most people are asking what AI can do.<br>This project is asking what humans must become to work with AI well.<br>That is the more important question.</p>
+      </div>
+    </section>
+
+    <!-- 01 PHILOSOPHY -->
+    <section class="sec" id="philosophy">
+      <div class="sec-label">01 — PHILOSOPHY</div>
+      <h2 class="sec-title">Why the Conscious Loop Exists</h2>
+      <div class="body-text">
+        <p>The future won't be shaped by information alone. It will be shaped by how we process, interpret, and coordinate around information.</p>
+        <p>AI amplifies cognition. Clear thinkers become exponentially more effective. Incoherent thinkers become overwhelmed. The bottleneck is not AI capability — it is human cognitive architecture.</p>
+        <p>AI is often approached as search, speed, or output. That's useful — but high-leverage human–AI collaboration asks for a different layer of skill:</p>
+      </div>
+
+      <div class="skill-list">
+        <div class="skill-item">recursive thinking</div>
+        <div class="skill-item">systems awareness</div>
+        <div class="skill-item">emotional regulation</div>
+        <div class="skill-item">abstraction handling</div>
+        <div class="skill-item">uncertainty tolerance</div>
+        <div class="skill-item">ethical reasoning</div>
+        <div class="skill-item">pattern synthesis</div>
+        <div class="skill-item">cognitive flexibility</div>
+      </div>
+
+      <div class="body-text">
+        <p>These are not soft skills. They are the interface layer between humans and advanced intelligence.</p>
+      </div>
+
+      <div class="oi-subsection-label">O/I — THE CORE MECHANIC</div>
+
+      <div class="oi-split">
+        <div class="oi-col">
+          <span class="oi-label o">OBSERVATION (O)</span>
+          <div class="oi-content">What was directly perceived.<br>Raw signal.<br>What actually occurred.</div>
+        </div>
+        <div class="oi-col">
+          <span class="oi-label i">INTERPRETATION (I)</span>
+          <div class="oi-content">Meaning assigned to what was perceived.<br>Narrative layer.<br>What the mind constructed from it.</div>
+        </div>
+      </div>
+
+      <div class="oi-caption">The mind collapses O into I faster than it can notice.<br>This environment holds the gap open.</div>
+
+      <div class="body-text">
+        <p>This isn't just a philosophical distinction. It's practical too. Every unexamined assumption, every misalignment that only appeared at execution, every decision that felt obvious until reality arrived — began here: interpretation locking in before observation was made explicit.</p>
+      </div>
+    </section>
+
+    <!-- 02 MODEL -->
+    <section class="sec" id="model">
+      <div class="sec-label">02 — COGNITIVE MODEL</div>
+      <h2 class="sec-title">Dual Processing Architecture</h2>
+      <div class="body-text">
+        <p>The environment is built on a formal model of two interacting cognitive systems. Neither dominates. The training goal is their cooperation — not the suppression of one in favour of the other. That distinction is important.</p>
+
+        <div class="pull">The system is the agent. There is no named guide.<br>The architecture itself is what speaks.</div>
+
+        <div class="dual">
+          <div class="sys-card">
+            <div class="sys-tag i">INTUITION</div>
+            <div class="sys-name">Fast cognition</div>
+            <div class="sys-desc">SUBJECTIVE / PATTERN-DRIVEN / EXPERIENCE-BASED</div>
+            <ul class="sys-list">
+              <li>Rapid decisions</li>
+              <li>Social reading</li>
+              <li>Creativity &amp; instinct</li>
+              <li>Implicit prediction</li>
+              <li>Emotional resonance</li>
+            </ul>
+            <div class="sys-risk">Risk: bias, projection, tribal cognition, emotional hijack</div>
+          </div>
+          <div class="sys-card">
+            <div class="sys-tag d">DELIBERATION</div>
+            <div class="sys-name">Slow cognition</div>
+            <div class="sys-desc">ANALYTICAL / EVIDENCE-ORIENTED / REFLECTIVE</div>
+            <ul class="sys-list">
+              <li>Verification</li>
+              <li>Planning &amp; abstraction</li>
+              <li>Systems analysis</li>
+              <li>Evidence-based reasoning</li>
+              <li>Uncertainty modeling</li>
+            </ul>
+            <div class="sys-risk">Risk: over-analysis, detachment, paralysis, false certainty</div>
+          </div>
+        </div>
+
+        <p>Most modern systems exploit intuition while presenting themselves as serving deliberation. Social media, advertising, politics, and outrage algorithms target emotion, identity, fear, and tribal patterning while framing themselves as informational and rational.</p>
+        <p>Teaching individuals to observe when each mode is operating, and when the two are distorting each other, is one of the defining mechanics of this environment.</p>
+      </div>
+    </section>
+
+    <!-- 03 CURRICULUM -->
+    <section class="sec" id="curriculum">
+      <div class="sec-label">03 — COGNITIVE CURRICULUM</div>
+      <h2 class="sec-title">Six Layers of Playable Cognition</h2>
+      <div class="body-text">
+        <p>These layers are not taught sequentially. They are revealed through participation. The target moment is not comprehension — it is recognition. When a player catches themselves mid-pattern and thinks: I just did that. That moment is the product. Understanding arrives after participation, not before.</p>
+      </div>
+
+      <div class="layers">
+        <div class="layer">
+          <div class="oi-marker"><span class="om">O</span><span class="oi-div"></span><span class="im">I</span></div>
+          <div class="layer-header"><div class="layer-num">LAYER 01</div><div class="layer-name">Perception</div></div>
+          <div class="layer-type">HOW HUMANS FILTER REALITY</div>
+          <div class="layer-topics"><span class="topic-pill">attention</span><span class="topic-pill">framing</span><span class="topic-pill">salience</span><span class="topic-pill">memory distortion</span><span class="topic-pill">emotional coloring</span></div>
+        </div>
+        <div class="layer">
+          <div class="oi-marker"><span class="om">O</span><span class="oi-div"></span><span class="im">I</span></div>
+          <div class="layer-header"><div class="layer-num">LAYER 02</div><div class="layer-name">Intuition</div></div>
+          <div class="layer-type">FAST COGNITION</div>
+          <div class="layer-topics"><span class="topic-pill">gut feeling</span><span class="topic-pill">prediction</span><span class="topic-pill">associative thinking</span><span class="topic-pill">emotional weighting</span><span class="topic-pill">heuristic shortcuts</span></div>
+        </div>
+        <div class="layer">
+          <div class="oi-marker"><span class="om">O</span><span class="oi-div"></span><span class="im">I</span></div>
+          <div class="layer-header"><div class="layer-num">LAYER 03</div><div class="layer-name">Deliberation</div></div>
+          <div class="layer-type">SLOW COGNITION</div>
+          <div class="layer-topics"><span class="topic-pill">evidence</span><span class="topic-pill">reflection</span><span class="topic-pill">probability</span><span class="topic-pill">systems reasoning</span><span class="topic-pill">uncertainty</span></div>
+        </div>
+        <div class="layer">
+          <div class="oi-marker"><span class="om">O</span><span class="oi-div"></span><span class="im">I</span></div>
+          <div class="layer-header"><div class="layer-num">LAYER 04</div><div class="layer-name">Bias &amp; Weighting</div></div>
+          <div class="layer-type">DECISION DISTORTION</div>
+          <div class="layer-topics"><span class="topic-pill">confirmation bias</span><span class="topic-pill">availability bias</span><span class="topic-pill">incentive bias</span><span class="topic-pill">identity protection</span><span class="topic-pill">social proof</span></div>
+        </div>
+        <div class="layer">
+          <div class="oi-marker"><span class="om">O</span><span class="oi-div"></span><span class="im">I</span></div>
+          <div class="layer-header"><div class="layer-num">LAYER 05</div><div class="layer-name">Culture &amp; Narrative</div></div>
+          <div class="layer-type">COLLECTIVE COGNITION</div>
+          <div class="layer-topics"><span class="topic-pill">norms</span><span class="topic-pill">stories</span><span class="topic-pill">incentives</span><span class="topic-pill">institutions</span><span class="topic-pill">memetics</span></div>
+        </div>
+        <div class="layer">
+          <div class="oi-marker"><span class="om">O</span><span class="oi-div"></span><span class="im">I</span></div>
+          <div class="layer-header"><div class="layer-num">LAYER 06</div><div class="layer-name">Collaborative Intelligence</div></div>
+          <div class="layer-type">HUMAN + AI COGNITION</div>
+          <div class="layer-topics"><span class="topic-pill">transparency</span><span class="topic-pill">reasoning visibility</span><span class="topic-pill">trust formation</span><span class="topic-pill">synthesis</span><span class="topic-pill">uncertainty navigation</span></div>
+        </div>
+      </div>
+
+      <div class="curriculum-note">
+        O/I separation operates across all six layers.<br>
+        It is the mechanic beneath every module.<br>
+        It is never announced. It is always present.
+      </div>
+    </section>
+
+    <!-- 04 BRAIN GYM -->
+    <section class="sec" id="fitness">
+      <div class="sec-label">04 — COGNITIVE FITNESS</div>
+      <h2 class="sec-title">The Brain Gym</h2>
+      <div class="body-text">
+        <p>Most people understand physical training intuitively: resistance creates growth, repetition builds strength, overload expands capacity. Almost nobody applies this logic to deliberate cognition.</p>
+        <p>Modern environments heavily train reactive attention, emotional impulsivity, novelty-seeking, and fragmented focus. Very few systems train sustained reasoning, cognitive endurance, emotional regulation under uncertainty, or reflective analysis.</p>
+        <p>This environment turns thinking itself into a progression system. Not IQ. Not trivia. Not memorisation — but clarity, reasoning stamina, pattern coherence, and perspective shifting. Six trainable attributes compound over time.</p>
+
+        <div class="attrs" id="attrs">
+          <div class="attr" data-fill="88">
+            <div><div class="attr-name">SIGNAL DISCIPLINE</div><div class="attr-bar"><div class="attr-fill"></div></div></div>
+            <div><div class="attr-desc">Ability to resist distraction and misinformation.</div><div class="attr-trained">Conflicting information scenarios · noise filtering · delayed judgment tasks</div></div>
+          </div>
+          <div class="attr" data-fill="74">
+            <div><div class="attr-name">PERSPECTIVE FLEXIBILITY</div><div class="attr-bar"><div class="attr-fill"></div></div></div>
+            <div><div class="attr-desc">Ability to hold multiple models simultaneously without collapse.</div><div class="attr-trained">Role reversal mechanics · contradictory narratives · uncertainty simulations</div></div>
+          </div>
+          <div class="attr" data-fill="61">
+            <div><div class="attr-name">RECURSIVE AWARENESS</div><div class="attr-bar"><div class="attr-fill"></div></div></div>
+            <div><div class="attr-desc">Ability to observe your own thinking process as it happens.</div><div class="attr-trained">Reflection phases · prediction tracking · emotional state awareness checks</div></div>
+          </div>
+          <div class="attr" data-fill="79">
+            <div><div class="attr-name">EMOTIONAL STABILITY</div><div class="attr-bar"><div class="attr-fill"></div></div></div>
+            <div><div class="attr-desc">Ability to reason clearly under emotional pressure.</div><div class="attr-trained">Social tension events · timed ethical decisions · manipulation resistance scenarios</div></div>
+          </div>
+          <div class="attr" data-fill="55">
+            <div><div class="attr-name">SYSTEMS VISION</div><div class="attr-bar"><div class="attr-fill"></div></div></div>
+            <div><div class="attr-desc">Ability to perceive incentives, feedback loops, and emergent behavior.</div><div class="attr-trained">Network mapping · cause-effect simulations · emergent system events</div></div>
+          </div>
+          <div class="attr" data-fill="82">
+            <div><div class="attr-name">O/I DISCIPLINE</div><div class="attr-bar"><div class="attr-fill"></div></div></div>
+            <div><div class="attr-desc">Ability to separate what was directly observed from the meaning assigned to it — before interpretation hardens into assumption.</div><div class="attr-trained">Observation isolation exercises · interpretation audit sequences · assumption extraction · scenario reconstruction from raw signal only</div></div>
+          </div>
+        </div>
+
+        <div class="halo-box">
+          <div class="halo-title">THE CULTURAL INVERSION</div>
+          <div class="halo-compare">
+            <div>
+              <div class="halo-col-label them">CURRENT SYSTEMS REWARD</div>
+              <div class="halo-item">Outrage</div>
+              <div class="halo-item">Impulsivity</div>
+              <div class="halo-item">Certainty performance</div>
+              <div class="halo-item">Tribal reaction</div>
+              <div class="halo-item">Speed over accuracy</div>
+            </div>
+            <div>
+              <div class="halo-col-label us">THIS ENVIRONMENT REWARDS</div>
+              <div class="halo-item">Discernment</div>
+              <div class="halo-item">Reflection</div>
+              <div class="halo-item">Coherence</div>
+              <div class="halo-item">Adaptability</div>
+              <div class="halo-item">Clarity under pressure</div>
+            </div>
+          </div>
+        </div>
+
+        <p>When it works, participants begin to experience clarity, calm thinking, and cognitive integrity as the markers of advancement.<br>That is culturally significant.<br>This is not a genre shift. It is a paradigm shift.</p>
+      </div>
+    </section>
+
+    <!-- 05 AI LAYER -->
+    <section class="sec" id="collaboration">
+      <div class="sec-label">05 — HUMAN–AI COLLABORATION</div>
+      <h2 class="sec-title">The Missing Side of Alignment</h2>
+      <div class="body-text">
+        <p>Organizations working on AI alignment, interpretability, and cooperative intelligence have focused, understandably, on the machine. The missing side of that equation is comparatively underdeveloped.</p>
+
+        <div class="pull">The missing side of alignment is not the machine.<br>It is the gap between what humans appear to agree on<br>and what they actually share.</div>
+
+        <p>Radical Cognitive Transparency is the core operating principle. Not <em style="color:var(--light)">"here is what to think."</em> But: <em style="color:var(--off-white)">"here is how this conclusion was reached."</em> That distinction matters for AI systems, governance, media, education, and any collaborative endeavour that depends on trust forming over time.</p>
+        <p>Truth will be timestamped. Reasoning will be visible. Trust will not come from authority — it will emerge from consistency.</p>
+        <p>Building this properly requires something this document is honest about: it is not a solo undertaking.</p>
+
+        <div class="collab-brief">
+          <div class="cb-title">WHAT THIS PROJECT REQUIRES</div>
+          <div class="cb-roles">
+            <div class="cb-role">Cognitive scientists</div>
+            <div class="cb-role">AI alignment researchers</div>
+            <div class="cb-role">Interaction designers</div>
+            <div class="cb-role">Systems engineers</div>
+            <div class="cb-role">Educational psychologists</div>
+            <div class="cb-role">Ethical review</div>
+            <div class="cb-role">Prototyping infrastructure</div>
+            <div class="cb-role">Collaborative institutions</div>
+          </div>
+        </div>
+
+        <p>Within this environment AI agents do not guide, advise, or conclude. They model the O/I separation in real time — making their own reasoning visible, acknowledging uncertainty explicitly, and demonstrating what it looks like when interpretation is held separately from observation. Not to persuade. To demonstrate. That is the only legitimate role for an AI agent inside a coherence environment.</p>
+      </div>
+    </section>
+
+    <!-- 06 WIDER ARCHITECTURE -->
+    <section class="sec" id="architecture">
+      <div class="sec-label">06 — THE WIDER ARCHITECTURE</div>
+      <h2 class="sec-title">What This Connects To</h2>
+      <div class="body-text">
+        <p>The Conscious Loop is one entry point. It is the environment where the O/I distinction is first felt — where cognitive training begins, where the mechanics are playable, where ideas become experiential.</p>
+        <p>The framework it sits inside is larger. When observation and interpretation are consistently separated, when decisions are logged and visible, when reasoning is tracked over time — something accumulates that a single environment cannot hold.</p>
+        <p>We are not building that full architecture here. What we can say honestly is what it connects to.</p>
+      </div>
+
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="arch-card-label">ONRAMP</div>
+          <div class="arch-card-name">Loop Lens</div>
+          <div class="arch-card-desc">The entry point before this one. Where the O/I distinction is first encountered — lightweight, accessible, designed to surface the gap between observation and interpretation in everyday moments.</div>
+          <div class="arch-status exists">EXISTS</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-label">ENVIRONMENT</div>
+          <div class="arch-card-name">The Conscious Loop</div>
+          <div class="arch-card-desc">The simulation environment. Where cognitive training begins in depth. Where O/I is felt as a mechanic, not just encountered as a concept. This document.</div>
+          <div class="arch-status exists">YOU ARE HERE</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-label">NEXT LAYER</div>
+          <div class="arch-card-name">Counterbalance</div>
+          <div class="arch-card-desc">Where the trained O/I discipline becomes operational. The architecture for honest decision-making as a structural requirement — signal integrity, workflow emergence, collaborative intelligence at scale.</div>
+          <div class="arch-status forming">IN FORMATION</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-label">PERCEPTION-TO-DECISION</div>
+          <div class="arch-card-name">The Full Loop</div>
+          <div class="arch-card-desc">Spaces where human and AI reasoning operate together under conditions of transparency — where the loop is shared, auditable, and improvable across teams, institutions, and systems.</div>
+          <div class="arch-status forming">WHAT BECOMES POSSIBLE</div>
+        </div>
+      </div>
+
+      <div class="body-text">
+        <p>These are not promises. They are the honest shape of what this is becoming. The Conscious Loop is where it is possible to begin — rigorous, grounded, and buildable now. The wider architecture is what the loop makes possible over time.</p>
+      </div>
+    </section>
+
+    <!-- 07 ETHICS -->
+    <section class="sec" id="ethics">
+      <div class="sec-label">07 — ETHICAL GUARDRAILS</div>
+      <h2 class="sec-title">What Keeps This Safe</h2>
+      <div class="body-text">
+        <p>This environment trains perception. That is power. Power without constraints becomes coercion. This is not a disclaimer. It is load-bearing.</p>
+
+        <div class="ethics-split">
+          <div class="eth-col">
+            <div class="eth-col-label no">DOES NOT</div>
+            <div class="eth-item">Tell participants what to think</div>
+            <div class="eth-item">Reward ideological alignment</div>
+            <div class="eth-item">Claim access to hidden truth</div>
+            <div class="eth-item">Position the designers as uniquely perceptive</div>
+            <div class="eth-item">Create dependency, hierarchy, or intellectual captivity</div>
+            <div class="eth-item">Manufacture belief</div>
+          </div>
+          <div class="eth-col">
+            <div class="eth-col-label yes">DOES</div>
+            <div class="eth-item">Encourage reflection</div>
+            <div class="eth-item">Make reasoning visible</div>
+            <div class="eth-item">Preserve participant agency at every step</div>
+            <div class="eth-item">Treat uncertainty as the normal condition</div>
+            <div class="eth-item">Support curiosity over certainty</div>
+            <div class="eth-item">Empower — never control</div>
+          </div>
+        </div>
+
+        <p>The premise is simple: everyone is susceptible to loops — including institutions, governments, corporations, creators, participants, and the designers of this environment. That humility is what keeps the work psychologically safe and intellectually rigorous. And, ironically, it's exactly what makes serious people trust it.</p>
+        <p>The central constraint is this: the system cannot claim to have solved the problem it was built to address. "Apparency error" — the gap between apparent alignment and actual shared understanding — applies to the designers, too. This humility is not a disclaimer. It is the condition under which the system remains trustworthy.</p>
+      </div>
+    </section>
+
+    <!-- CLOSING -->
+    <div class="d-closing">
+      <p class="closing-trojan">
+        The environment is not the destination.<br>
+        <em>The environment is the Trojan horse for cognitive evolution.</em><br>
+        Because it is interactive, people absorb the training voluntarily.<br>
+        That is a very big idea.
+      </p>
+
+      <div class="product-sequence">
+        <span class="ps-name">LOOP LENS</span>
+        <span class="ps-arrow">→</span>
+        <span class="ps-name current">THE CONSCIOUS LOOP</span>
+        <span class="ps-arrow">→</span>
+        <span class="ps-name">COUNTERBALANCE</span>
+      </div>
+      <p class="ps-caption">This is one layer of a larger environment.</p>
+
+      <div class="signal-dot"></div>
+      <p class="closing-first-move">Awareness is the first move.</p>
+      <div class="closing-name">The Conscious Loop</div>
+      <div class="closing-sub">COGNITIVE MECHANICS FRAMEWORK — V1.0 — 2026</div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span>TCL / CMF V1.0</span>
+    <span>COGNITIVE FITNESS FOR THE AGE OF COLLABORATIVE INTELLIGENCE</span>
+  </footer>
+
+</div>
+
+<script>
+const cur = document.getElementById('cursor');
+document.addEventListener('mousemove', e => { cur.style.left=e.clientX+'px'; cur.style.top=e.clientY+'px'; });
+document.querySelectorAll('a,button,.attr,.layer,.arch-card').forEach(el => {
+  el.addEventListener('mouseenter',()=>cur.classList.add('big'));
+  el.addEventListener('mouseleave',()=>cur.classList.remove('big'));
+});
+
+const WORDS=['PERCEPTION','INTUITION','CULTURE','MEMORY','INCENTIVES','FEAR','TRUST','WEIGHTED OUTCOMES','IDENTITY','NARRATIVE','PREDICTION','CONFIRMATION','EMOTION','PROBABILITY','SOCIAL PROOF','ATTENTION','AMBIGUITY','BELIEF','PATTERN RECOGNITION'];
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function boot(){
+  // 1. BIAS
+  await delay(500);
+  document.getElementById('b-bias').classList.add('show');
+  for(const[i,id]of['bl1','bl2','bl3','bl4','bl5'].entries()){
+    await delay(i===0?1100:380);
+    document.getElementById(id).classList.add('show');
+  }
+
+  // 2. Rapid words
+  await delay(600);
+  const rapid=document.getElementById('b-rapid');
+  WORDS.forEach(w=>{const s=document.createElement('span');s.className='rw';s.textContent=w;rapid.appendChild(s);});
+  rapid.classList.add('show');
+  const spans=rapid.querySelectorAll('.rw');
+  for(let i=0;i<spans.length;i++){await delay(110);spans[i].classList.add('lit');if(i>0)spans[i-1].classList.remove('lit');}
+  await delay(150);
+  spans.forEach(s=>{s.classList.remove('lit');s.classList.add('dim-out');});
+
+  // Drag-reveal: mouse-over lights words in signal green during 3s window
+  let revealOn=true;
+  spans.forEach(s=>{
+    s.addEventListener('mouseenter',()=>{
+      if(revealOn && s.classList.contains('dim-out')) s.classList.add('revealed');
+    });
+  });
+  await delay(3000);
+  revealOn=false;
+
+  // Fade words
+  await delay(200);
+  rapid.style.transition='opacity .7s ease';
+  rapid.style.opacity='0';
+
+  // 4. "The system noticed something."
+  await delay(800);
+  document.getElementById('b-noticed').classList.add('show');
+
+  // 5. Scenario container
+  await delay(1600);
+  document.getElementById('b-scenario').classList.add('show');
+
+  // 6. OBSERVED field
+  await delay(800);
+  document.getElementById('sc-obs').classList.add('show');
+
+  // 7. INTERPRETED field
+  await delay(800);
+  document.getElementById('sc-int').classList.add('show');
+
+  // 8. "These are not the same thing."
+  await delay(1500);
+  document.getElementById('sc-not').classList.add('show');
+
+  // 9. Gap note
+  await delay(1000);
+  document.getElementById('sc-gap').classList.add('show');
+
+  // 10. Final lines
+  await delay(1800);
+  document.getElementById('b-final').classList.add('show');
+  for(const[i,id]of['fl1','fl2','fl3'].entries()){
+    await delay(i===0?200:750);
+    document.getElementById(id).classList.add('show');
+  }
+
+  // 11. Enter
+  await delay(1000);
+  document.getElementById('enter-btn').classList.add('show');
+}
+
+function enterMain(){
+  const boot=document.getElementById('boot');
+  const main=document.getElementById('main');
+  boot.style.transition='opacity .9s ease';
+  boot.style.opacity='0';
+  setTimeout(()=>{
+    boot.style.display='none';
+    window.scrollTo(0,0);
+    main.classList.add('on');
+    initScroll(); initNav(); initBars();
+  },900);
+}
+
+function initScroll(){
+  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on');});},{threshold:.08});
+  document.querySelectorAll('.sec').forEach(s=>obs.observe(s));
+}
+function initNav(){
+  const links=document.querySelectorAll('.nav-link');
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('on'));const l=document.querySelector(`.nav-link[href="#${e.target.id}"]`);if(l)l.classList.add('on');}});
+  },{threshold:.35});
+  document.querySelectorAll('.sec').forEach(s=>obs.observe(s));
+}
+function initBars(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){const f=e.target.querySelector('.attr-fill');if(f)setTimeout(()=>{f.style.width=e.target.dataset.fill+'%';},250);}});
+  },{threshold:.5});
+  document.querySelectorAll('.attr').forEach(a=>obs.observe(a));
+}
+
+boot();
+</script>
+</body>
+</html>
