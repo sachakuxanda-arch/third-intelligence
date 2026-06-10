@@ -4,135 +4,181 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact — Third Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Courier+Prime:ital,wght@0,400;0,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--green:#C8FF00;--bg:#070707;--text:#e8e8e0;--muted:#6a6a62;--border:rgba(200,255,0,0.12)}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'EB Garamond',serif;cursor:none;overflow-x:hidden;font-size:20px}
+body{background:var(--bg);color:var(--text);font-family:'EB Garamond',serif;font-size:20px;min-height:100vh}
 ::selection{background:var(--green);color:#070707}
-#cursor{position:fixed;width:7px;height:7px;background:var(--green);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:transform 0.1s ease}
-#cursor.large{transform:translate(-50%,-50%) scale(3)}
-.scanlines{position:fixed;inset:0;pointer-events:none;z-index:8000;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.12) 2px,rgba(0,0,0,0.12) 4px);opacity:0.35}
-#nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.4rem 3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(7,7,7,0.95);backdrop-filter:blur(8px)}
-.nav-logo{font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:0.28em;color:var(--green);text-transform:uppercase;text-decoration:none}
-.nav-back{font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:0.18em;color:var(--muted);text-decoration:none;text-transform:uppercase;transition:color 0.2s}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+#nav{padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.28em;color:var(--green);text-transform:uppercase;text-decoration:none}
+.nav-back{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.16em;color:var(--muted);text-decoration:none;text-transform:uppercase}
 .nav-back:hover{color:var(--green)}
-#page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8rem 2rem 5rem}
-.wrap{max-width:640px;width:100%}
-.eyebrow{font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:0.24em;color:rgba(200,255,0,0.4);text-transform:uppercase;margin-bottom:2rem;opacity:0;transition:opacity 0.8s}
-.eyebrow.show{opacity:1}
-.heading{font-family:'EB Garamond',serif;font-size:clamp(2rem,4vw,3rem);color:var(--text);line-height:1.2;margin-bottom:1rem;opacity:0;transition:opacity 0.8s}
-.heading.show{opacity:1}
-.sub{font-family:'EB Garamond',serif;font-size:1rem;color:var(--muted);line-height:1.75;margin-bottom:3rem;opacity:0;transition:opacity 0.8s}
-.sub.show{opacity:1}
-.type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:2.5rem;opacity:0;transition:opacity 0.8s}
-.type-row.show{opacity:1}
-.type-btn{background:var(--bg);padding:1rem 0.8rem;font-family:'Courier Prime',monospace;font-size:0.72rem;letter-spacing:0.1em;color:var(--muted);text-align:center;cursor:pointer;transition:all 0.2s;border:none;text-transform:uppercase;line-height:1.4;width:100%}
-.type-btn:hover{background:#0d0d0d;color:var(--text)}
-.type-btn.active{background:#0d0d0d;color:var(--green);box-shadow:inset 0 -2px 0 var(--green)}
-.form-area{opacity:0;transition:opacity 0.8s}
-.form-area.show{opacity:1}
-.field{margin-bottom:1.8rem}
-.field label{font-family:'Courier Prime',monospace;font-size:0.7rem;letter-spacing:0.18em;color:rgba(200,255,0,0.45);text-transform:uppercase;display:block;margin-bottom:0.5rem}
-.field input,.field textarea,.field select{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(200,255,0,0.2);color:var(--text);font-family:'EB Garamond',serif;font-size:1.05rem;padding:0.5rem 0;outline:none;transition:border-color 0.2s;caret-color:var(--green);-webkit-appearance:none}
-.field input:focus,.field textarea:focus{border-bottom-color:var(--green)}
-.field textarea{border:1px solid rgba(200,255,0,0.2);padding:0.8rem;resize:vertical;min-height:130px}
-.field textarea:focus{border-color:var(--green)}
-.field input::placeholder,.field textarea::placeholder{color:rgba(106,106,98,0.5)}
-.submit-btn{font-family:'Space Mono',monospace;font-size:0.75rem;letter-spacing:0.22em;color:var(--green);border:1px solid var(--green);padding:0.9rem 2.4rem;background:transparent;cursor:pointer;transition:all 0.25s;text-transform:uppercase}
-.submit-btn:hover{background:var(--green);color:#070707}
-footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;margin-top:auto}
-.footer-left{font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:0.2em;color:rgba(200,255,0,0.35)}
-.footer-right{font-family:'Courier Prime',monospace;font-size:0.8rem;color:var(--muted)}
+.wrap{max-width:720px;margin:0 auto;padding:5rem 2rem 6rem}
+.section-label{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.22em;color:#E53935;text-transform:uppercase;margin-bottom:2.5rem}
+h1{font-weight:400;font-size:clamp(2rem,5vw,3rem);line-height:1.15;margin-bottom:1.4rem}
+.intro{font-size:clamp(1rem,1.8vw,1.18rem);color:var(--muted);line-height:1.8;margin-bottom:3rem;min-height:4.6rem}
+.intro strong{color:#fff;font-weight:500}
+.intro em{color:var(--green);font-style:italic}
+
+/* tabs */
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:2.6rem}
+.tab{background:var(--bg);font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:1.1rem .6rem;text-align:center;cursor:pointer;border:none;transition:color .2s,background .2s}
+.tab:hover{color:var(--text)}
+.tab[aria-selected="true"]{color:var(--green);background:#0d0d0d;box-shadow:inset 0 -2px 0 var(--green)}
+
+/* form */
+form{display:flex;flex-direction:column;gap:1.8rem}
+label{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.6rem}
+input[type=text],input[type=email],textarea,select{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'Courier Prime',monospace;font-size:1rem;padding:.6rem 0;transition:border-color .2s}
+textarea{resize:vertical;min-height:7rem;line-height:1.6}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--green) 50%),linear-gradient(135deg,var(--green) 50%,transparent 50%);background-position:calc(100% - 14px) 50%,calc(100% - 8px) 50%;background-size:6px 6px;background-repeat:no-repeat;cursor:pointer}
+select option{background:#0d0d0d;color:var(--text)}
+input::placeholder,textarea::placeholder{color:#3a3a34}
+input:focus,textarea:focus,select:focus{border-bottom-color:var(--green)}
+.field-target{display:none}
+.field-target.active{display:block}
+button[type=submit]{align-self:flex-start;font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;background:transparent;border:1px solid var(--green);color:var(--green);padding:.9rem 1.8rem;cursor:pointer;transition:background .2s,color .2s;margin-top:.4rem}
+button[type=submit]:hover{background:var(--green);color:#070707}
+.fine{font-family:'Courier Prime',monospace;font-size:.78rem;color:var(--muted);margin-top:2.5rem;line-height:1.7}
+footer{border-top:1px solid var(--border);padding:2.5rem 3rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-left{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:rgba(200,255,0,0.35)}
+.footer-right{font-family:'Courier Prime',monospace;font-size:.8rem;color:var(--muted)}
 @media(max-width:640px){
   #nav{padding:1.2rem 1.5rem}
-  #page{padding:7rem 1.5rem 4rem}
-  .type-row{grid-template-columns:1fr}
-  footer{flex-direction:column;gap:1rem;padding:2rem 1.5rem;text-align:center}
+  .wrap{padding:3.5rem 1.5rem 4rem}
+  .tabs{grid-template-columns:1fr 1fr}
+  footer{flex-direction:column;text-align:center;padding:2rem 1.5rem}
 }
 </style>
 </head>
 <body>
-<div class="scanlines"></div>
-<div id="cursor"></div>
 
 <nav id="nav">
   <a class="nav-logo" href="index.html">Third Intelligence</a>
-  <a class="nav-back" href="index.html">&#8592; Back</a>
+  <a class="nav-back" href="index.html">&#8592; Back to the work</a>
 </nav>
 
-<div id="page">
-  <div class="wrap">
-    <div class="eyebrow" id="ey">&#167; 05 &#8212; Collaboration</div>
-    <h1 class="heading" id="hd">The right next step<br>is a conversation.</h1>
-    <p class="sub" id="sb">Two years of documented work. The signal is clear. If this has landed somewhere real for you, select the nature of your enquiry and leave a message.</p>
+<div class="wrap">
+  <div class="section-label">Contact</div>
+  <h1 id="page-title">The right next step is a conversation.</h1>
+  <p class="intro" id="intro-text">Two years of documented work. The signal is clear. If this has landed somewhere real for you, select the nature of your enquiry and leave a message.</p>
 
-    <div class="type-row" id="tr">
-      <button class="type-btn" data-type="Research collaboration" onclick="setType(this)">Research<br>collaboration</button>
-      <button class="type-btn" data-type="Institutional / academic" onclick="setType(this)">Institutional /<br>academic</button>
-      <button class="type-btn" data-type="Investment and studio" onclick="setType(this)">Investment<br>and studio</button>
-    </div>
-
-    <div class="form-area" id="fa">
-      <form action="https://formspree.io/f/xvzngpqq" method="POST">
-        <input type="hidden" name="enquiry_type" id="enquiry_type" value="Research collaboration">
-        <div class="field">
-          <label for="name">Name</label>
-          <input type="text" id="name" name="name" placeholder="Your name" required>
-        </div>
-        <div class="field">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="Your email address" required>
-        </div>
-        <div class="field">
-          <label for="org">Organisation <span style="color:var(--muted);font-size:0.85em">(optional)</span></label>
-          <input type="text" id="org" name="organisation" placeholder="Where you are from">
-        </div>
-        <div class="field">
-          <label for="msg">Message</label>
-          <textarea id="msg" name="message" placeholder="What is on your mind." required></textarea>
-        </div>
-        <button class="submit-btn" type="submit">SEND MESSAGE</button>
-      </form>
-    </div>
+  <div class="tabs" role="tablist" aria-label="Nature of enquiry">
+    <button class="tab" role="tab" id="tab-research" data-type="research" aria-selected="false" type="button">Research collaboration</button>
+    <button class="tab" role="tab" id="tab-critique" data-type="critique" aria-selected="false" type="button">Critique the thesis</button>
+    <button class="tab" role="tab" id="tab-institutional" data-type="institutional" aria-selected="false" type="button">Institutional / academic</button>
+    <button class="tab" role="tab" id="tab-investment" data-type="investment" aria-selected="false" type="button">Investment &amp; studio</button>
   </div>
+
+  <!-- ============================================================
+       IMPORTANT: replace the action below with YOUR existing form
+       handler (Formspree / Netlify / etc.) from your current
+       contact.html. Everything else can stay as-is — the hidden
+       "type" and the "target" select will ride along as extra
+       fields in the submission.
+       ============================================================ -->
+  <form id="contact-form" action="https://formspree.io/f/xvzngpqq" method="POST">
+    <input type="hidden" name="type" id="type-field" value="research">
+
+    <div class="field-target" id="target-wrap">
+      <label for="target">What does your critique target?</label>
+      <select name="target" id="target">
+        <option value="">Select…</option>
+        <option value="hypothesis">The hypothesis (Adaptive Capacity Thesis)</option>
+        <option value="prediction">A prediction (P-001 / P-002 / P-003)</option>
+        <option value="formalisation">The formalisation (A&#x2090; &minus; A&#x2098; = &Delta;E)</option>
+        <option value="framework">The framework / environments</option>
+        <option value="other">Something else</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" autocomplete="name" required>
+    </div>
+    <div>
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" autocomplete="email" required>
+    </div>
+    <div>
+      <label for="message" id="message-label">Message</label>
+      <textarea name="message" id="message" required></textarea>
+    </div>
+    <button type="submit" id="submit-btn">Send</button>
+  </form>
+
+  <p class="fine" id="fine-print"></p>
 </div>
 
 <footer>
-  <div class="footer-left">Third Intelligence &#8212; Independent Research</div>
+  <div class="footer-left">Third Intelligence — Independent Research</div>
   <div class="footer-right">Preserve signal. Close loops. Make reasoning visible.</div>
 </footer>
 
 <script>
-var cur=document.getElementById('cursor');
-document.addEventListener('mousemove',function(e){cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
-document.addEventListener('mouseover',function(e){
-  if(e.target.matches('a,button,input,textarea')){cur.classList.add('large')}
-  else{cur.classList.remove('large')}
-});
-function setType(btn){
-  document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active')});
-  btn.classList.add('active');
-  document.getElementById('enquiry_type').value=btn.getAttribute('data-type');
+// ---- per-type copy ----
+const COPY = {
+  research: {
+    title: 'The right next step is a conversation.',
+    intro: 'Two years of documented work. The signal is clear. If this has landed somewhere real for you, leave a message about the collaboration you have in mind.',
+    placeholder: 'What are you working on, and where does it meet this?',
+    submit: 'Send',
+    fine: ''
+  },
+  critique: {
+    title: 'Tell me where this is wrong.',
+    intro: '<strong>The goal is not agreement. The goal is better models.</strong> The strongest version of your objection is the most useful one \u2014 if you can point at the test that would settle it, even better.',
+    placeholder: 'The objection, as sharply as you can state it. What evidence or test would settle it?',
+    submit: 'Submit critique',
+    fine: 'Critiques are logged in the open research record \u2014 the objection, the reply, and what it changed. Say so in your message if you prefer yours kept private.'
+  },
+  institutional: {
+    title: 'The right next step is a conversation.',
+    intro: 'Two years of documented work. If this connects to a programme, a department, or a research agenda you steward, leave a message.',
+    placeholder: 'Your institution, and the connection you see.',
+    submit: 'Send',
+    fine: ''
+  },
+  investment: {
+    title: 'The right next step is a conversation.',
+    intro: 'The work is at a stage where the right collaborators change what becomes possible. If you are interested in the studio and what it builds next, leave a message.',
+    placeholder: 'Who you are, and what kind of involvement you have in mind.',
+    submit: 'Send',
+    fine: ''
+  }
+};
+
+const tabs = document.querySelectorAll('.tab');
+const typeField = document.getElementById('type-field');
+const targetWrap = document.getElementById('target-wrap');
+const targetSelect = document.getElementById('target');
+
+function selectType(type){
+  if(!COPY[type]) type = 'research';
+  tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.type === type)));
+  typeField.value = type;
+  const c = COPY[type];
+  document.getElementById('page-title').textContent = c.title;
+  document.getElementById('intro-text').innerHTML = c.intro;
+  document.getElementById('message').placeholder = c.placeholder;
+  document.getElementById('submit-btn').textContent = c.submit;
+  document.getElementById('fine-print').textContent = c.fine;
+  const isCritique = (type === 'critique');
+  targetWrap.classList.toggle('active', isCritique);
+  targetSelect.required = isCritique;
+  // keep URL in sync so the tab state is shareable / back-button friendly
+  const url = new URL(location);
+  url.searchParams.set('type', type);
+  history.replaceState(null, '', url);
 }
-function readParam(){
-  var p=new URLSearchParams(window.location.search).get('type');
-  var map={'research':0,'institutional':1,'investment':2};
-  var idx=map[p];
-  if(idx===undefined){idx=0}
-  var btns=document.querySelectorAll('.type-btn');
-  btns[idx].classList.add('active');
-  document.getElementById('enquiry_type').value=btns[idx].getAttribute('data-type');
-}
-setTimeout(function(){document.getElementById('ey').classList.add('show')},300);
-setTimeout(function(){document.getElementById('hd').classList.add('show')},700);
-setTimeout(function(){document.getElementById('sb').classList.add('show')},1100);
-setTimeout(function(){
-  document.getElementById('tr').classList.add('show');
-  document.getElementById('fa').classList.add('show');
-  readParam();
-},1500);
+
+tabs.forEach(t => t.addEventListener('click', () => selectType(t.dataset.type)));
+
+// ---- read ?type= on arrival: this is the line that makes
+//      contact.html?type=critique land on the right tab ----
+selectType(new URLSearchParams(location.search).get('type') || 'research');
 </script>
 </body>
 </html>
