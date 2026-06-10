@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Brain Gym — Cognitive Fitness — Third Intelligence</title>
+<meta name="description" content="Thinking as a progression system. Six trainable attributes, and a done-with-you loop: the system carries the procedure, you keep the iteration.">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Courier+Prime:ital,wght@0,400;0,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--green:#C8FF00;--bg:#070707;--text:#e8e8e0;--muted:#6a6a62;--border:rgba(200,255,0,0.12)}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'EB Garamond',serif;font-size:20px;overflow-x:hidden}
+::selection{background:var(--green);color:#070707}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+#nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid transparent;transition:border-color .4s,background .4s}
+#nav.scrolled{border-bottom-color:var(--border);background:rgba(7,7,7,0.95);backdrop-filter:blur(8px)}
+.nav-logo{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.28em;color:var(--green);text-transform:uppercase;text-decoration:none}
+.nav-logo span{color:var(--muted)}
+.nav-links{display:flex;gap:2rem;list-style:none;align-items:center}
+.nav-links a{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.16em;color:var(--muted);text-decoration:none;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:var(--green)}
+#hero{min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8rem 2rem 4rem;text-align:center}
+.hero-eyebrow{font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.3em;color:#4FC3F7;text-transform:uppercase;margin-bottom:2.4rem}
+.hero-headline{font-size:clamp(2.3rem,5.5vw,4.2rem);line-height:1.15;font-weight:400;max-width:800px}
+.hero-headline em{font-style:italic;color:var(--green)}
+.hero-sub{font-size:clamp(1rem,1.8vw,1.18rem);color:var(--muted);line-height:1.75;max-width:600px;margin:2.2rem auto 0}
+.hero-cta{margin-top:2.8rem;font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--green);text-decoration:none;border:1px solid var(--green);padding:.9rem 1.8rem;transition:background .2s,color .2s;display:inline-block}
+.hero-cta:hover{background:var(--green);color:#070707}
+.section{padding:6.5rem 2rem;max-width:900px;margin:0 auto}
+.section-label{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.22em;color:#E53935;text-transform:uppercase;margin-bottom:3rem;opacity:0;transform:translateY(12px);transition:opacity .7s,transform .7s}
+.section-label.show{opacity:1;transform:translateY(0)}
+.divider{border:none;border-top:1px solid var(--border);margin:0}
+.body-text{font-size:clamp(1rem,1.8vw,1.18rem);color:var(--muted);line-height:1.82;margin-bottom:1.6rem;opacity:0;transform:translateY(14px);transition:opacity .7s,transform .7s}
+.body-text.show{opacity:1;transform:translateY(0)}
+.body-text strong{color:#fff;font-weight:500}
+
+/* attributes */
+.attr-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin:2.5rem 0;opacity:0;transform:translateY(14px);transition:opacity .8s,transform .8s}
+.attr-grid.show{opacity:1;transform:translateY(0)}
+.attr{background:var(--bg);padding:2.2rem 2rem}
+.attr-name{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.18em;color:var(--green);text-transform:uppercase;margin-bottom:.8rem}
+.attr-def{font-size:1.08rem;color:var(--text);line-height:1.55;margin-bottom:1rem}
+.attr-drills{font-family:'Courier Prime',monospace;font-size:.78rem;color:var(--muted);line-height:1.7}
+
+/* inversion */
+.inv-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin:2.5rem 0;opacity:0;transform:translateY(14px);transition:opacity .8s,transform .8s}
+.inv-grid.show{opacity:1;transform:translateY(0)}
+.inv-col{background:var(--bg);padding:2.2rem 2rem}
+.inv-head{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:1.4rem}
+.inv-col.current .inv-head{color:#E53935}
+.inv-col.this .inv-head{color:var(--green)}
+.inv-col ul{list-style:none}
+.inv-col li{padding:.5rem 0;border-bottom:1px dotted var(--border);font-size:1.05rem;color:var(--muted)}
+.inv-col.this li{color:var(--text)}
+.inv-col li:last-child{border-bottom:none}
+
+/* loop */
+.loop-shell{border:1px solid var(--border);background:#0a0a0a;margin:2.5rem 0;opacity:0;transform:translateY(14px);transition:opacity .8s,transform .8s}
+.loop-shell.show{opacity:1;transform:translateY(0)}
+.loop-head{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(200,255,0,0.35);padding:1rem 1.8rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.loop-body{padding:2rem 1.8rem}
+.loop-step{display:none}
+.loop-step.active{display:block}
+.step-tag{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.8rem}
+.step-tag .who-system{color:#4FC3F7}
+.step-tag .who-human{color:var(--green)}
+.loop-q{font-size:1.3rem;color:#fff;margin-bottom:1.2rem;line-height:1.4}
+.loop-input,.loop-textarea,.loop-select{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'Courier Prime',monospace;font-size:1rem;padding:.6rem 0;transition:border-color .2s}
+.loop-textarea{resize:vertical;min-height:4.5rem;line-height:1.6}
+.loop-input::placeholder,.loop-textarea::placeholder{color:#3a3a34}
+.loop-input:focus,.loop-textarea:focus,.loop-select:focus{border-bottom-color:var(--green)}
+.loop-select{appearance:none;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,var(--green) 50%),linear-gradient(135deg,var(--green) 50%,transparent 50%);background-position:calc(100% - 14px) 50%,calc(100% - 8px) 50%;background-size:6px 6px;background-repeat:no-repeat}
+.loop-select option{background:#0d0d0d;color:var(--text)}
+.loop-note{font-size:.92rem;color:var(--muted);line-height:1.7;margin-top:1.4rem;font-style:italic}
+.loop-note strong{color:var(--text);font-style:normal;font-weight:500}
+.route-list{list-style:none;margin:1.2rem 0}
+.route-list li{padding:.8rem 0;border-bottom:1px dotted var(--border);font-size:1.02rem;color:var(--muted);line-height:1.6}
+.route-list li:last-child{border-bottom:none}
+.route-list .rq{color:var(--text)}
+.loop-btn{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;background:transparent;border:1px solid var(--green);color:var(--green);padding:.85rem 1.6rem;cursor:pointer;transition:background .2s,color .2s;margin-top:1.6rem}
+.loop-btn:hover{background:var(--green);color:#070707}
+.loop-btn.ghost{border-color:var(--border);color:var(--muted);margin-left:.8rem}
+.loop-btn.ghost:hover{background:transparent;border-color:var(--muted);color:var(--text)}
+.locked-line{font-family:'Courier Prime',monospace;font-size:1rem;color:var(--text);padding:.6rem 0;border-bottom:1px dashed rgba(200,255,0,0.3);margin-bottom:.4rem}
+.locked-tag{font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:.2em;color:rgba(200,255,0,0.4);text-transform:uppercase;display:block;margin-bottom:1.4rem}
+.gap-box{border:1px solid var(--border);padding:1.4rem 1.6rem;margin:1.4rem 0;font-family:'Courier Prime',monospace;font-size:.92rem;color:var(--muted);line-height:1.8}
+.gap-box .k{color:rgba(200,255,0,0.5);font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:.2rem}
+.gap-box .v{color:var(--text);display:block;margin-bottom:1rem}
+.consent-row{display:flex;gap:.9rem;align-items:flex-start;margin-top:1.6rem}
+.consent-row input[type=checkbox]{accent-color:#C8FF00;margin-top:.35rem;width:1rem;height:1rem;cursor:pointer}
+.consent-row label{font-size:.92rem;color:var(--muted);line-height:1.65;font-style:italic;cursor:pointer}
+footer{border-top:1px solid var(--border);padding:2.5rem 3rem;display:flex;align-items:center;justify-content:space-between;margin-top:4rem;flex-wrap:wrap;gap:1rem}
+.footer-left{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:rgba(200,255,0,0.35)}
+.footer-right{font-family:'Courier Prime',monospace;font-size:.8rem;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--green)}
+@media(max-width:700px){
+  #nav{padding:1.2rem 1.5rem}
+  .nav-links li:nth-child(n+3){display:none}
+  .section{padding:4.5rem 1.5rem}
+  .attr-grid,.inv-grid{grid-template-columns:1fr}
+  .loop-btn.ghost{margin-left:0;margin-top:.8rem}
+  footer{flex-direction:column;text-align:center}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .section-label,.body-text,.attr-grid,.inv-grid,.loop-shell{opacity:1;transform:none;transition:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a class="nav-logo" href="index.html">Brain Gym <span>/ Third Intelligence</span></a>
+  <ul class="nav-links">
+    <li><a href="#attributes">Attributes</a></li>
+    <li><a href="#loop">The Loop</a></li>
+    <li><a href="tcl.html">&#8592; TCL</a></li>
+    <li><a href="index.html">Third Intelligence</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="hero-eyebrow">Cognitive Fitness</div>
+  <h1 class="hero-headline">Thinking as a<br><em>progression system.</em></h1>
+  <p class="hero-sub">Resistance creates growth. Repetition builds strength. Overload expands capacity. Almost everyone applies this to the body. Almost nobody applies it to deliberate cognition.</p>
+  <a class="hero-cta" href="#loop">Run a loop now &#8595;</a>
+</section>
+
+<hr class="divider">
+
+<div class="section" id="premise">
+  <div class="section-label reveal-item">&sect; 01 &mdash; The Premise</div>
+  <p class="body-text reveal-item">Modern environments heavily train reactive attention, emotional impulsivity, novelty-seeking, and fragmented focus. Very few systems train sustained reasoning, cognitive endurance, emotional regulation under uncertainty, or reflective analysis.</p>
+  <p class="body-text reveal-item">This environment turns thinking itself into a progression system. Not IQ. Not trivia. Not memorisation &mdash; but <strong>clarity, reasoning stamina, pattern coherence, and perspective shifting.</strong> Six trainable attributes that compound over time.</p>
+</div>
+
+<hr class="divider">
+
+<div class="section" id="attributes">
+  <div class="section-label reveal-item">&sect; 02 &mdash; Six Trainable Attributes</div>
+  <div class="attr-grid reveal-item">
+    <div class="attr">
+      <div class="attr-name">Signal Discipline</div>
+      <div class="attr-def">Resist distraction and misinformation.</div>
+      <div class="attr-drills">Conflicting information scenarios &middot; noise filtering &middot; delayed judgment tasks</div>
+    </div>
+    <div class="attr">
+      <div class="attr-name">Perspective Flexibility</div>
+      <div class="attr-def">Hold multiple models simultaneously without collapse.</div>
+      <div class="attr-drills">Role reversal mechanics &middot; contradictory narratives &middot; uncertainty simulations</div>
+    </div>
+    <div class="attr">
+      <div class="attr-name">Recursive Awareness</div>
+      <div class="attr-def">Observe your own thinking process as it happens.</div>
+      <div class="attr-drills">Reflection phases &middot; prediction tracking &middot; emotional state awareness checks</div>
+    </div>
+    <div class="attr">
+      <div class="attr-name">Emotional Stability</div>
+      <div class="attr-def">Reason clearly under emotional pressure.</div>
+      <div class="attr-drills">Social tension events &middot; timed ethical decisions &middot; manipulation resistance scenarios</div>
+    </div>
+    <div class="attr">
+      <div class="attr-name">Systems Vision</div>
+      <div class="attr-def">Perceive incentives, feedback loops, and emergent behavior.</div>
+      <div class="attr-drills">Network mapping &middot; cause-effect simulations &middot; emergent system events</div>
+    </div>
+    <div class="attr">
+      <div class="attr-name">O/I Discipline</div>
+      <div class="attr-def">Separate what was directly observed from the meaning assigned to it &mdash; before interpretation hardens into assumption.</div>
+      <div class="attr-drills">Observation isolation &middot; interpretation audits &middot; assumption extraction &middot; reconstruction from raw signal</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section" id="inversion">
+  <div class="section-label reveal-item">&sect; 03 &mdash; The Cultural Inversion</div>
+  <div class="inv-grid reveal-item">
+    <div class="inv-col current">
+      <div class="inv-head">Current systems reward</div>
+      <ul>
+        <li>Outrage</li>
+        <li>Impulsivity</li>
+        <li>Certainty performance</li>
+        <li>Tribal reaction</li>
+        <li>Speed over accuracy</li>
+      </ul>
+    </div>
+    <div class="inv-col this">
+      <div class="inv-head">This environment rewards</div>
+      <ul>
+        <li>Discernment</li>
+        <li>Reflection</li>
+        <li>Coherence</li>
+        <li>Adaptability</li>
+        <li>Clarity under pressure</li>
+      </ul>
+    </div>
+  </div>
+  <p class="body-text reveal-item">When it works, participants begin to experience clarity, calm thinking, and cognitive integrity as the markers of advancement.</p>
+</div>
+
+<hr class="divider">
+
+<div class="section" id="loop">
+  <div class="section-label reveal-item">&sect; 04 &mdash; The Loop, Done With You</div>
+  <p class="body-text reveal-item">You don't need to want to exercise your brain to start. Enter a real decision and the system carries the procedure &mdash; the framing, the questions, the scheduling, the return. Only two moments stay yours, because they <strong>are</strong> the training: committing an expectation before the outcome, and honestly judging the gap after. <strong>You cannot outsource your iterations &mdash; but everything around them, we carry.</strong></p>
+
+  <div class="loop-shell reveal-item">
+    <div class="loop-head"><span id="loop-title">The Conscious Loop &mdash; Done With You</span><span id="loop-state">STEP 1 OF 4</span></div>
+    <div class="loop-body">
+
+      <!-- STEP 1: decision -->
+      <div class="loop-step active" id="step-1">
+        <div class="step-tag"><span class="who-human">&#9679; YOU</span><span style="color:var(--muted)">10 seconds</span></div>
+        <div class="loop-q">What decision are you facing?</div>
+        <input class="loop-input" id="in-decision" type="text" maxlength="200" placeholder="e.g. &ldquo;Whether to send the proposal this week or wait for more data.&rdquo;">
+        <p class="loop-note">Any real decision works &mdash; work, personal, large, small. Reality answers all of them eventually.</p>
+        <button class="loop-btn" id="btn-1" type="button">Route it for me &#8594;</button>
+      </div>
+
+      <!-- STEP 2: the route (system) -->
+      <div class="loop-step" id="step-2">
+        <div class="step-tag"><span class="who-system">&#9679; SYSTEM</span><span style="color:var(--muted)">carried for you</span></div>
+        <div class="loop-q">Your route through the loop.</div>
+        <ul class="route-list" id="route-list"></ul>
+        <p class="loop-note">Read it. That's all this step asks. The questions are doing the work that usually never happens &mdash; you don't have to answer them in writing, just let them pass through once.</p>
+        <button class="loop-btn" id="btn-2" type="button">Done &mdash; take me to the commitment &#8594;</button>
+      </div>
+
+      <!-- STEP 3: commitment (human, locked) -->
+      <div class="loop-step" id="step-3">
+        <div class="step-tag"><span class="who-human">&#9679; YOU</span><span style="color:var(--muted)">the first iteration that can't be outsourced</span></div>
+        <div class="loop-q">What do you expect to happen?</div>
+        <textarea class="loop-textarea" id="in-expect" maxlength="300" placeholder="One honest sentence. What does your gut say the outcome will be?"></textarea>
+        <div style="margin-top:1.4rem">
+          <label style="font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem" for="in-conf">How confident are you?</label>
+          <select class="loop-select" id="in-conf">
+            <option value="">Select&hellip;</option>
+            <option value="leaning">Leaning &mdash; barely better than a coin flip</option>
+            <option value="fairly">Fairly confident &mdash; surprised if wrong</option>
+            <option value="very">Very confident &mdash; would bet on it</option>
+          </select>
+        </div>
+        <div style="margin-top:1.4rem">
+          <label style="font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem" for="in-when">When will reality answer?</label>
+          <select class="loop-select" id="in-when">
+            <option value="">Select&hellip;</option>
+            <option value="1">Within a day</option>
+            <option value="7">Within a week</option>
+            <option value="30">Within a month</option>
+            <option value="90">Longer &mdash; within ~3 months</option>
+          </select>
+        </div>
+        <button class="loop-btn" id="btn-3" type="button">Commit &mdash; lock it in</button>
+        <p class="loop-note"><strong>This locks.</strong> A committed expectation is the only kind that can teach you anything &mdash; hindsight rewrites everything it touches.</p>
+      </div>
+
+      <!-- STEP 4: open loop / close loop -->
+      <div class="loop-step" id="step-4">
+        <div class="step-tag"><span class="who-system">&#9679; SYSTEM</span><span style="color:var(--muted)">holding your loop</span></div>
+        <div class="loop-q" id="open-title">Loop open. Reality is voting.</div>
+        <div class="locked-line" id="show-decision"></div>
+        <span class="locked-tag" id="show-decision-tag">DECISION</span>
+        <div class="locked-line" id="show-expect"></div>
+        <span class="locked-tag" id="show-expect-tag">COMMITTED &middot; CANNOT BE REVISED</span>
+        <p class="loop-note" id="open-note">Come back to this page when you know what happened &mdash; your loop is held right here in this browser. The second unoutsourceable moment is waiting.</p>
+        <button class="loop-btn" id="btn-close-now" type="button">I know what happened &mdash; close the loop</button>
+        <button class="loop-btn ghost" id="btn-new" type="button">Discard &amp; start over</button>
+      </div>
+
+      <!-- STEP 5: closing -->
+      <div class="loop-step" id="step-5">
+        <div class="step-tag"><span class="who-human">&#9679; YOU</span><span style="color:var(--muted)">the second iteration that can't be outsourced</span></div>
+        <div class="loop-q">What happened?</div>
+        <div class="gap-box">
+          <span class="k">You expected</span>
+          <span class="v" id="recall-expect"></span>
+          <span class="k">Your confidence</span>
+          <span class="v" id="recall-conf"></span>
+        </div>
+        <textarea class="loop-textarea" id="in-outcome" maxlength="300" placeholder="What actually happened &mdash; observation first, interpretation second."></textarea>
+        <div style="margin-top:1.4rem">
+          <label style="font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem" for="in-verdict">Honest verdict on your expectation:</label>
+          <select class="loop-select" id="in-verdict">
+            <option value="">Select&hellip;</option>
+            <option value="right">Broadly right</option>
+            <option value="mixed">Partly right, partly wrong</option>
+            <option value="wrong">Wrong</option>
+            <option value="unresolved">Reality hasn't really answered yet</option>
+          </select>
+        </div>
+        <div class="consent-row">
+          <input type="checkbox" id="consent">
+          <label for="consent">Contribute this loop, anonymised, to the open research record. No name, no email &mdash; just decision type, confidence, verdict, and timing. Contributed loops feed prediction P-001's evidence base.</label>
+        </div>
+        <button class="loop-btn" id="btn-5" type="button">Close the loop</button>
+      </div>
+
+      <!-- STEP 6: closed -->
+      <div class="loop-step" id="step-6">
+        <div class="step-tag"><span class="who-human">&#9679; CLOSED</span></div>
+        <div class="loop-q" id="closed-headline"></div>
+        <div class="gap-box">
+          <span class="k">Expected</span><span class="v" id="final-expect"></span>
+          <span class="k">Happened</span><span class="v" id="final-outcome"></span>
+          <span class="k">Verdict &middot; Confidence</span><span class="v" id="final-verdict"></span>
+        </div>
+        <p class="loop-note" id="closed-note"></p>
+        <button class="loop-btn" id="btn-again" type="button">Run another loop</button>
+      </div>
+
+    </div>
+  </div>
+  <p class="body-text reveal-item" style="font-size:.95rem">Loops live only in your browser unless you choose to contribute one. This is rep one of a progression system &mdash; the six attributes above are what the full environment will train, released when it can generate evidence, not before.</p>
+</div>
+
+<footer>
+  <div class="footer-left">Brain Gym &mdash; A Third Intelligence Environment</div>
+  <div class="footer-right"><a href="index.html">Preserve signal. Close loops. Make reasoning visible.</a></div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);});
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');obs.unobserve(e.target);}})},{threshold:0.08});
+document.querySelectorAll('.section-label,.body-text,.attr-grid,.inv-grid,.loop-shell').forEach(el=>obs.observe(el));
+
+// ---------- done-with-you loop ----------
+const KEY='bg_loop_v1';
+const $=id=>document.getElementById(id);
+function show(step,label){
+  document.querySelectorAll('.loop-step').forEach(s=>s.classList.remove('active'));
+  $(step).classList.add('active');
+  if(label)$('loop-state').textContent=label;
+}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+function save(d){try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
+function clearLoop(){try{localStorage.removeItem(KEY)}catch(e){}}
+
+// the route: system-carried scaffolding, tuned lightly to the decision text
+function buildRoute(decision){
+  const d=decision.toLowerCase();
+  const route=[
+    '<span class="rq">The frame.</span> You are deciding: &ldquo;'+escapeHtml(decision)+'&rdquo; &mdash; notice that doing nothing is also one of the options.',
+    '<span class="rq">The hidden assumption.</span> What would have to be true for the &ldquo;obvious&rdquo; option to be right? Say it once, plainly.',
+    '<span class="rq">What would change your mind?</span> If nothing could, this isn\u2019t a decision &mdash; it\u2019s a commitment you\u2019ve already made.',
+    '<span class="rq">Observable success.</span> What would you literally see, hear, or measure if this goes well? (Not how it would feel.)'
+  ];
+  if(/\b(wait|delay|later|postpone|hold)\b/.test(d))route.push('<span class="rq">The waiting clause.</span> You mentioned timing. What specifically arrives by waiting &mdash; information, or just comfort?');
+  if(/\b(send|tell|ask|email|message|say|talk|call)\b/.test(d))route.push('<span class="rq">The other model.</span> This involves another person. What do they currently believe you\u2019ve agreed? Is that what you believe?');
+  if(/\b(buy|invest|spend|pay|cost|price|money)\b/.test(d))route.push('<span class="rq">The reversal test.</span> If you already had it and were deciding whether to keep it &mdash; would you?');
+  return route;
+}
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+const CONF_LABELS={leaning:'Leaning',fairly:'Fairly confident',very:'Very confident'};
+
+// step 1 -> 2
+$('btn-1').addEventListener('click',()=>{
+  const v=$('in-decision').value.trim();
+  if(!v){$('in-decision').focus();return;}
+  $('route-list').innerHTML=buildRoute(v).map(r=>'<li>'+r+'</li>').join('');
+  save({decision:v,stage:'routed'});
+  show('step-2','STEP 2 OF 4 \u00b7 SYSTEM-CARRIED');
+});
+// step 2 -> 3
+$('btn-2').addEventListener('click',()=>show('step-3','STEP 3 OF 4 \u00b7 YOURS'));
+// step 3 commit -> 4 open
+$('btn-3').addEventListener('click',()=>{
+  const e=$('in-expect').value.trim(),c=$('in-conf').value,w=$('in-when').value;
+  if(!e){$('in-expect').focus();return}
+  if(!c){$('in-conf').focus();return}
+  if(!w){$('in-when').focus();return}
+  const d=load()||{};
+  d.expect=e;d.conf=c;d.when=w;d.committedAt=new Date().toISOString();d.stage='open';
+  save(d);renderOpen(d);
+  show('step-4','LOOP OPEN');
+});
+function renderOpen(d){
+  $('show-decision').textContent=d.decision;
+  $('show-expect').textContent=d.expect;
+  $('show-expect-tag').textContent='COMMITTED '+d.committedAt.slice(0,16).replace('T',' ')+' \u00b7 '+(CONF_LABELS[d.conf]||'').toUpperCase()+' \u00b7 CANNOT BE REVISED';
+}
+// open -> close
+$('btn-close-now').addEventListener('click',()=>{
+  const d=load();if(!d)return;
+  $('recall-expect').textContent=d.expect;
+  $('recall-conf').textContent=CONF_LABELS[d.conf]||'';
+  show('step-5','CLOSING \u00b7 YOURS');
+});
+$('btn-new').addEventListener('click',()=>{clearLoop();$('in-decision').value='';$('in-expect').value='';show('step-1','STEP 1 OF 4');});
+// close
+$('btn-5').addEventListener('click',()=>{
+  const o=$('in-outcome').value.trim(),v=$('in-verdict').value;
+  if(!o){$('in-outcome').focus();return}
+  if(!v){$('in-verdict').focus();return}
+  const d=load()||{};
+  d.outcome=o;d.verdict=v;d.closedAt=new Date().toISOString();d.stage='closed';
+  // optional anonymised contribution -> Formspree (no name/email/decision text)
+  if($('consent').checked){
+    try{
+      fetch('https://formspree.io/f/xvzngpqq',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({type:'loop-data',confidence:d.conf,verdict:v,horizon_days:d.when,committed:d.committedAt,closed:d.closedAt})});
+    }catch(e){}
+  }
+  const headl={right:'Calibrated \u2014 this time.',mixed:'A gap, in part. That\u2019s signal.',wrong:'A gap. That\u2019s the most valuable kind of rep.',unresolved:'Held open honestly \u2014 also a skill.'};
+  const notes={right:'A confirmed expectation only counts because it was committed first. One rep done. Calibration is what compounds when this becomes a habit on decisions that matter.',
+    mixed:'Partial gaps are where the learning is densest \u2014 something in your model was right and something wasn\u2019t. Worth one quiet minute on which part was which.',
+    wrong:'Nothing here to fix and no judgment to make \u2014 the gap, seen clearly, has already done its work. People who never see their gaps don\u2019t become well calibrated; they just stay confident.',
+    unresolved:'Refusing to force a verdict reality hasn\u2019t given is its own discipline. Re-open this when the answer actually lands.'};
+  $('closed-headline').textContent=headl[v];
+  $('final-expect').textContent=d.expect;
+  $('final-outcome').textContent=o;
+  $('final-verdict').textContent=(v==='right'?'Broadly right':v==='mixed'?'Partly right':v==='wrong'?'Wrong':'Unresolved')+' \u00b7 stated confidence: '+(CONF_LABELS[d.conf]||'');
+  $('closed-note').textContent=notes[v];
+  clearLoop();
+  show('step-6','LOOP CLOSED');
+});
+$('btn-again').addEventListener('click',()=>{
+  $('in-decision').value='';$('in-expect').value='';$('in-outcome').value='';$('in-conf').value='';$('in-when').value='';$('in-verdict').value='';$('consent').checked=false;
+  show('step-1','STEP 1 OF 4');
+});
+
+// returning visitor with an open loop lands on it
+const existing=load();
+if(existing&&existing.stage==='open'){renderOpen(existing);show('step-4','LOOP OPEN \u00b7 WELCOME BACK');}
+</script>
+</body>
+</html>
