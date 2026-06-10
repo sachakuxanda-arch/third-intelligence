@@ -291,13 +291,10 @@ body{background:#070707;color:#e8e8e8;font-family:'EB Garamond',serif;cursor:non
         <div class="card-field"><div class="card-field-label">CALIBRATION GAP</div><div class="card-field-value">Expected: demand would be the primary variable; operations would be manageable.<br>Observed: demand was sufficient; operations became the binding constraint and slowed/blocked capture of demand.</div></div>
         <div class="card-field"><div class="card-field-label">LEARNING</div><div class="card-learning">The market thesis was directionally right, but the plan underestimated operational readiness. “Alignment” masked different mental models of what execution required — go-to-market assumed scale was mostly commercial, while operations required foundational build-out. Future expansions should explicitly separate confidence in demand from confidence in delivery capacity, and stage entry based on proven operational capability.</div></div>
         <div class="card-verdict">The reasoning survived. The divergence became visible.</div>
-        <div class="obs-next-wrap">
-          <button class="obs-next-btn" onclick="showObsCard(2)">NEXT ↓</button>
-        </div>
       </div>
 
-      <!-- Card 2 — hidden until NEXT -->
-      <div class="obs-card obs-card-hidden" id="obs-card2">
+<!-- Card 2 — visible; reveal-on-click removed (two of three stories were going unseen) -->
+      <div class="obs-card" id="obs-card2">
         <div class="card-field"><div class="card-field-label">DECISION</div><div class="card-field-value">Pass on early-stage AI governance investment.</div></div>
         <div class="card-field"><div class="card-field-label">WHY IT MATTERED</div><div class="card-field-value">Thesis-adjacent but outside core fund mandate.</div></div>
         <div class="card-field"><div class="card-field-label">ASSUMPTION</div><div class="card-field-value">Regulatory frameworks will develop slowly.</div></div>
@@ -311,13 +308,10 @@ body{background:#070707;color:#e8e8e8;font-family:'EB Garamond',serif;cursor:non
         <div class="card-field"><div class="card-field-label">CALIBRATION GAP</div><div class="card-field-value">Expected: slow institutional movement. Observed: coordinated regulatory acceleration.</div></div>
         <div class="card-field"><div class="card-field-label">LEARNING</div><div class="card-learning">Institutional timing was underweighted. The signal was present. The assumption made it invisible. Apparent consensus around the investment thesis concealed divergent models of regulatory trajectory.</div></div>
         <div class="card-verdict">The reasoning survived. The divergence became visible.</div>
-        <div class="obs-next-wrap">
-          <button class="obs-next-btn" onclick="showObsCard(3)">NEXT ↓</button>
-        </div>
       </div>
 
-      <!-- Card 3 — hidden until NEXT, stays permanently, scroll arrow replaces NEXT -->
-      <div class="obs-card obs-card-hidden" id="obs-card3">
+<!-- Card 3 — visible; scroll arrow closes the section -->
+      <div class="obs-card" id="obs-card3">
         <div class="card-field"><div class="card-field-label">DECISION</div><div class="card-field-value">Drive to Abilene for dinner.</div></div>
         <div class="card-field"><div class="card-field-label">WHY IT MATTERED</div><div class="card-field-value">A family afternoon. A collective choice.</div></div>
         <div class="card-field"><div class="card-field-label">ASSUMPTION</div><div class="card-field-value">Everyone else wants to go.</div></div>
