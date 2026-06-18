@@ -99,6 +99,31 @@ body{background:var(--bg);color:var(--text);font-family:'EB Garamond',serif;curs
 .failbox li{display:flex;gap:1rem;padding:0.55rem 0;font-family:'EB Garamond',serif;font-size:1.02rem;color:var(--muted);line-height:1.65}
 .failbox li::before{content:"\2715";font-family:'Space Mono',monospace;font-size:0.7rem;color:#E53935;padding-top:0.3rem}
 
+/* —— Adaptive Capacity Index —— */
+.aci-block{border:1px solid var(--border);padding:2.4rem 2.6rem;margin:3rem 0;opacity:0;transform:translateY(14px);transition:opacity 0.7s,transform 0.7s}
+.aci-block.show{opacity:1;transform:translateY(0)}
+.aci-block h3{font-family:'EB Garamond',serif;font-size:clamp(1.2rem,2.2vw,1.5rem);color:#ffffff;font-weight:500;margin-bottom:1.2rem}
+.aci-block .aci-intro{font-family:'EB Garamond',serif;font-size:1.02rem;color:var(--muted);line-height:1.7;margin-bottom:1.6rem}
+.aci-list{list-style:none;margin-bottom:1.8rem}
+.aci-list li{display:flex;gap:0.9rem;padding:0.5rem 0;font-family:'EB Garamond',serif;font-size:1.02rem;color:var(--text);line-height:1.55}
+.aci-list li::before{content:"—";color:var(--green);flex-shrink:0}
+.aci-q{font-family:'EB Garamond',serif;font-size:clamp(1.05rem,2vw,1.3rem);color:var(--muted);line-height:1.7;margin-bottom:0.5rem}
+.aci-q em{font-style:italic;color:var(--muted)}
+.aci-q strong{font-style:italic;color:var(--green);font-weight:400}
+.aci-close{font-family:'EB Garamond',serif;font-size:1.02rem;color:var(--muted);line-height:1.75;margin-top:1.6rem;padding-top:1.6rem;border-top:1px solid var(--border)}
+
+/* —— Friction Taxonomy —— */
+.friction-block{border:1px solid var(--border);padding:2.4rem 2.6rem;margin:3rem 0;opacity:0;transform:translateY(14px);transition:opacity 0.7s,transform 0.7s}
+.friction-block.show{opacity:1;transform:translateY(0)}
+.friction-block h3{font-family:'EB Garamond',serif;font-size:clamp(1.2rem,2.2vw,1.5rem);color:#ffffff;font-weight:500;margin-bottom:0.5rem}
+.friction-date{font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:0.18em;color:rgba(200,255,0,0.5);text-transform:uppercase;margin-bottom:1.4rem;display:block}
+.friction-block .friction-intro{font-family:'EB Garamond',serif;font-size:1.02rem;color:var(--muted);line-height:1.7;margin-bottom:1.6rem}
+.friction-list{list-style:none;margin-bottom:1.6rem}
+.friction-list li{display:flex;gap:0.9rem;padding:0.55rem 0;font-family:'EB Garamond',serif;font-size:1.02rem;color:var(--text);line-height:1.55}
+.friction-list li::before{content:"—";color:var(--green);flex-shrink:0}
+.friction-list li strong{color:#ffffff;font-weight:500}
+.friction-close{font-family:'EB Garamond',serif;font-style:italic;font-size:1.02rem;color:var(--muted);line-height:1.7;padding-top:1.4rem;border-top:1px solid var(--border)}
+
 /* —— Predictions ledger —— */
 .pred{font-family:'Space Mono',monospace;border-top:1px solid var(--border);padding:1.8rem 0;opacity:0;transform:translateY(10px);transition:opacity 0.6s,transform 0.6s}
 .pred.show{opacity:1;transform:translateY(0)}
@@ -123,11 +148,12 @@ footer{border-top:1px solid var(--border);padding:2.5rem 3rem;display:flex;align
   .stat-item:last-child{border-bottom:none}
   .tool-grid{grid-template-columns:1fr}
   .failbox{padding:1.6rem 1.4rem}
+  .aci-block,.friction-block{padding:1.8rem 1.5rem}
   footer{flex-direction:column;gap:1rem;padding:2rem 1.5rem;text-align:center}
 }
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
-  .body-text,.origin-text,.section-label,.pull-quote,.stat-row,.formula-block,.ref-item,.tool-grid,.collab-links,.claims li,.failbox,.pred,.ledger-note,.hero-eyebrow,.hero-headline,.hero-sub,.hero-continue,.pivot-label,.pivot-line,.pivot-sub{opacity:1;transform:none;transition:none}
+  .body-text,.origin-text,.section-label,.pull-quote,.stat-row,.formula-block,.ref-item,.tool-grid,.collab-links,.claims li,.failbox,.pred,.ledger-note,.hero-eyebrow,.hero-headline,.hero-sub,.hero-continue,.pivot-label,.pivot-line,.pivot-sub,.aci-block,.friction-block{opacity:1;transform:none;transition:none}
 }
 </style>
 </head>
@@ -147,6 +173,7 @@ footer{border-top:1px solid var(--border);padding:2.5rem 3rem;display:flex;align
     <li><a href="Looplens.html">Loop Lens</a></li>
     <li><a href="tcl.html">TCL</a></li>
     <li><a href="counterbalance.html">Counterbalance</a></li>
+    <li><a href="https://base44.app/api/apps/6a00bdbb6cdf6f51ab8c8b88/files/mp/public/6a00bdbb6cdf6f51ab8c8b88/a457228e8_braingym_waitlist.html">Brain Gym Waitlist</a></li>
   </ul>
 </nav>
 
@@ -261,6 +288,23 @@ footer{border-top:1px solid var(--border);padding:2.5rem 3rem;display:flex;align
     <li class="reveal-item" data-n="04">Adaptive capacity compounds.</li>
     <li class="reveal-item" data-n="05">Systems that preserve learning and improve calibration will outperform systems focused solely on answer generation.</li>
   </ol>
+
+  <div class="aci-block reveal-item">
+    <h3>The Adaptive Capacity Index (ACI)</h3>
+    <p class="aci-intro">Brain Gym generates a new class of metric. Not IQ. Not productivity. Not engagement time.</p>
+    <ul class="aci-list">
+      <li>Curiosity persistence</li>
+      <li>Friction tolerance</li>
+      <li>Prediction accuracy</li>
+      <li>Identity flexibility</li>
+      <li>Recovery from setbacks</li>
+      <li>Schema update frequency</li>
+    </ul>
+    <p class="aci-q">The question the ACI answers is not <em>how intelligent are you?</em></p>
+    <p class="aci-q">It is: <strong>how alive is your capacity to evolve?</strong></p>
+    <p class="aci-close">A 72-year-old with a high ACI is more developmentally alive than a 28-year-old with a low one. That single reframe rewrites cultural assumptions about human potential and its timeline.</p>
+  </div>
+
   <div class="failbox reveal-item">
     <h3>What would prove this wrong?</h3>
     <ul>
@@ -304,7 +348,25 @@ footer{border-top:1px solid var(--border);padding:2.5rem 3rem;display:flex;align
       <div class="tool-cta">Train &#8594;</div>
     </a>
   </div>
-  <p class="body-text reveal-item" style="text-align:center;margin-top:1rem;font-size:0.9rem"><a href="braingym.html" style="color:#C8FF00;text-decoration:none;border-bottom:1px solid rgba(200,255,0,0.3)">The Brain Gym &#8594;</a> &middot; Further layers — SCoT, and the trust units they carry — exist in documented form. Introduced as the work earns them.</p>
+  <p class="body-text reveal-item" style="text-align:center;margin-top:1rem;font-size:0.9rem">
+    <a href="braingym.html" style="color:#C8FF00;text-decoration:none;border-bottom:1px solid rgba(200,255,0,0.3)">The Brain Gym &#8594;</a>
+    &middot;
+    <a href="https://base44.app/api/apps/6a00bdbb6cdf6f51ab8c8b88/files/mp/public/6a00bdbb6cdf6f51ab8c8b88/a457228e8_braingym_waitlist.html" style="color:#C8FF00;text-decoration:none;border-bottom:1px solid rgba(200,255,0,0.3)">Join the waitlist &#8594;</a>
+    &middot; Further layers — SCoT, and the trust units they carry — exist in documented form. Introduced as the work earns them.
+  </p>
+
+  <div class="friction-block reveal-item">
+    <span class="friction-date">Registered 18 June 2026</span>
+    <h3>The Friction Taxonomy</h3>
+    <p class="friction-intro">A four-part framework distinguishing friction by type. The structural foundation of Brain Gym.</p>
+    <ul class="friction-list">
+      <li><strong>Waste Friction</strong> — eliminate what drains growth</li>
+      <li><strong>Signal Friction</strong> — notice where reality contradicts your map</li>
+      <li><strong>Learning Friction</strong> — update your schema</li>
+      <li><strong>Transformational Friction</strong> — become someone capable of navigating a larger reality</li>
+    </ul>
+    <p class="friction-close">Most people call all four the same word: stress. Learning the difference is where training begins.</p>
+  </div>
 </div>
 
 <hr class="divider">
@@ -328,6 +390,12 @@ footer{border-top:1px solid var(--border);padding:2.5rem 3rem;display:flex;align
     <span class="pred-id">P-003 · REGISTERED 2026</span>
     <p class="pred-claim">Adaptive capacity becomes a more valuable economic asset as intelligence becomes cheaper.</p>
     <span class="pred-row"><span class="pred-k">MEASURE&nbsp;&nbsp;</span><span class="pred-v">Relative pricing of calibration-linked skills as inference cost falls</span></span>
+    <span class="pred-row"><span class="pred-k">STATUS&nbsp;&nbsp;&nbsp;</span><span class="pred-v">OPEN</span></span>
+  </div>
+  <div class="pred reveal-item">
+    <span class="pred-id">P-004 · REGISTERED 18 JUNE 2026</span>
+    <p class="pred-claim">A person's Adaptive Capacity Index (ACI) is a more meaningful indicator of developmental potential than age, IQ, or productivity metrics. A 72-year-old with a high ACI is more developmentally alive than a 28-year-old with a low one.</p>
+    <span class="pred-row"><span class="pred-k">MEASURE&nbsp;&nbsp;</span><span class="pred-v">ACI scores across age cohorts in Brain Gym pilot populations vs. self-reported developmental engagement</span></span>
     <span class="pred-row"><span class="pred-k">STATUS&nbsp;&nbsp;&nbsp;</span><span class="pred-v">OPEN</span></span>
   </div>
   <p class="ledger-note reveal-item">The <a href="https://github.com/sachakuxanda-arch/third-intelligence/blob/main/research/predictions.md" style="color:var(--green);text-decoration:none;border-bottom:1px solid rgba(200,255,0,0.3)">full ledger</a> — and an <a href="https://github.com/sachakuxanda-arch/third-intelligence/blob/main/research/critique-log.md" style="color:var(--green);text-decoration:none;border-bottom:1px solid rgba(200,255,0,0.3)">open log of critiques</a> received and what they changed — lives in the research repository. The goal is not agreement. The goal is better models.</p>
@@ -390,7 +458,7 @@ const obs=new IntersectionObserver(entries=>{
     obs.unobserve(entry.target);
   });
 },{threshold:0.08});
-document.querySelectorAll('.reveal-item,.section-label,.origin-text,.body-text,.pull-quote,.stat-row,.formula-block,.tool-grid,.collab-links,.claims li,.failbox,.pred,.ledger-note,.pivot-label,.pivot-line,.pivot-sub').forEach(el=>obs.observe(el));
+document.querySelectorAll('.reveal-item,.section-label,.origin-text,.body-text,.pull-quote,.stat-row,.formula-block,.tool-grid,.collab-links,.claims li,.failbox,.pred,.ledger-note,.pivot-label,.pivot-line,.pivot-sub,.aci-block,.friction-block').forEach(el=>obs.observe(el));
 </script>
 </body>
 </html>
